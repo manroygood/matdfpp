@@ -68,7 +68,7 @@ function output = matdfield(action,input1,input2,input3)
     ll = length(tmpdir);
     tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if isempty(findstr(tmpdir,p))
+    if isempty(strfind(tmpdir,p))
       ud.remtd = 1;
       addpath(tempdir)
     end
@@ -101,7 +101,7 @@ function output = matdfield(action,input1,input2,input3)
 	ll = fgetl(fid);
 	ll = fgetl(fid);
 	fclose(fid);
-	if isempty(findstr('%% Created by DF',ll))
+	if isempty(strfind('%% Created by DF',ll))
 	  kk = [kk;k];
 	else
 	  delete(fn)
@@ -857,7 +857,7 @@ function output = matdfield(action,input1,input2,input3)
       % function array smart.
       
       l=length(derivstr);
-      for ( k = fliplr(findstr('.',derivstr)))
+      for ( k = fliplr(strfind('.',derivstr)))
 	if (find('*/^' == derivstr(k+1)))
 	  derivstr = [derivstr(1:k-1), derivstr(k+1:l)];
 	end
@@ -866,7 +866,7 @@ function output = matdfield(action,input1,input2,input3)
       for kk = 1:4
 	paraval = parav{kk};
 	l=length(paraval);
-	for ( k = fliplr(findstr('.',paraval)))
+	for ( k = fliplr(strfind('.',paraval)))
 	  if (find('*/^' == paraval(k+1)))
 	    paraval = [paraval(1:k-1), paraval(k+1:l)];
 	  end
@@ -1675,7 +1675,7 @@ function output = matdfield(action,input1,input2,input3)
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
     mehc = dud.menu(6);
-    if (findstr(get(mehc,'label'),'inactive'))
+    if (strfind(get(mehc,'label'),'inactive'))
       set(dfdisp,'WindowButtonDownFcn',' ');
       set(mehc,'label','Make the Display Window active.');
       nstr{5,1} = 'The Display Window is not active.';
@@ -2981,7 +2981,7 @@ function output = matdfield(action,input1,input2,input3)
     KK = max(val);
     lfcn = get(ud.lfcn,'string');
     l=length(lfcn);
-    for ( k = fliplr(findstr('.',lfcn)))
+    for ( k = fliplr(strfind('.',lfcn)))
       if (find('*/^' == lfcn(k+1)))
 	lfcn = [lfcn(1:k-1), lfcn(k+1:l)];
       end
@@ -3216,7 +3216,7 @@ function output = matdfield(action,input1,input2,input3)
     if strcmp(para,str)
       str = value;
     elseif (ll >= lp+1)
-      k = findstr(para,str);
+      k = strfind(para,str);
       
       lk = length(k);
       lopstr = '(+-*/^';
