@@ -42,7 +42,7 @@ function output = matdfield(action,input1,input2,input3)
     % running, since this causes problems.	
     
     dfh = findobj('tag','matdfield');
-    if ~isempty(dfh);
+    if ~isempty(dfh)
       qstring = {'There are some open matdfield figures (perhaps invisible).  ';...
 		 'What do you want to do?'};
       tstring = 'Only one copy of matdfield can be open at one time.';
@@ -68,7 +68,7 @@ function output = matdfield(action,input1,input2,input3)
     ll = length(tmpdir);
     tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if isempty(strfind(tmpdir,p))
+    if isempty(findstr(tmpdir,p))
       ud.remtd = 1;
       addpath(tempdir)
     end
@@ -101,7 +101,7 @@ function output = matdfield(action,input1,input2,input3)
 	ll = fgetl(fid);
 	ll = fgetl(fid);
 	fclose(fid);
-	if isempty(strfind('%% Created by DF',ll))
+	if isempty(findstr('%% Created by DF',ll))
 	  kk = [kk;k];
 	else
 	  delete(fn)
@@ -857,7 +857,7 @@ function output = matdfield(action,input1,input2,input3)
       % function array smart.
       
       l=length(derivstr);
-      for ( k = fliplr(strfind('.',derivstr)))
+      for ( k = fliplr(findstr('.',derivstr)))
 	if (find('*/^' == derivstr(k+1)))
 	  derivstr = [derivstr(1:k-1), derivstr(k+1:l)];
 	end
@@ -866,7 +866,7 @@ function output = matdfield(action,input1,input2,input3)
       for kk = 1:4
 	paraval = parav{kk};
 	l=length(paraval);
-	for ( k = fliplr(strfind('.',paraval)))
+	for ( k = fliplr(findstr('.',paraval)))
 	  if (find('*/^' == paraval(k+1)))
 	    paraval = [paraval(1:k-1), paraval(k+1:l)];
 	  end
@@ -1675,7 +1675,7 @@ function output = matdfield(action,input1,input2,input3)
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
     mehc = dud.menu(6);
-    if (strfind(get(mehc,'label'),'inactive'))
+    if (findstr(get(mehc,'label'),'inactive'))
       set(dfdisp,'WindowButtonDownFcn',' ');
       set(mehc,'label','Make the Display Window active.');
       nstr{5,1} = 'The Display Window is not active.';
@@ -2981,7 +2981,7 @@ function output = matdfield(action,input1,input2,input3)
     KK = max(val);
     lfcn = get(ud.lfcn,'string');
     l=length(lfcn);
-    for ( k = fliplr(strfind('.',lfcn)))
+    for ( k = fliplr(findstr('.',lfcn)))
       if (find('*/^' == lfcn(k+1)))
 	lfcn = [lfcn(1:k-1), lfcn(k+1:l)];
       end
@@ -3216,7 +3216,7 @@ function output = matdfield(action,input1,input2,input3)
     if strcmp(para,str)
       str = value;
     elseif (ll >= lp+1)
-      k = strfind(para,str);
+      k = findstr(para,str);
       
       lk = length(k);
       lopstr = '(+-*/^';
@@ -3615,10 +3615,10 @@ function output = matdfield(action,input1,input2,input3)
       xp = [xp(2),x,x,xp(2)];
       set(patchh,'xdata',xp);
       set(lineh,'xdata',xl);
-      
+      ;
       nnn = kk/8;  % The number of equations.
       for j = 1:nnn
-	for k = 2:8 
+	for k = 2:8 ;
 	  eval(newsysts{(j-1)*8+k});
 	end
 	newsysstruct(j) = H;
@@ -3632,7 +3632,7 @@ function output = matdfield(action,input1,input2,input3)
       xp = [xp(2),x,x,xp(2)];
       set(patchh,'xdata',xp);
       set(lineh,'xdata',xl);
-      
+      ;
       newsyst = newsysstruct(j);
       sname = newsyst.name;
       sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
@@ -3876,7 +3876,7 @@ function output = matdfield(action,input1,input2,input3)
     dfset = findobj('name','matdfield Setup');
     ud = get(dfset,'user');
     kk = input1;
-    if ischar(kk)
+    if isstr(kk)
       kk = str2num(input1);
     end
     system = get(ud.h.gallery,'user');
@@ -4124,7 +4124,6 @@ while ~stop
   % Compute a new step size.
   absh = max(hmin,0.8*absh / max( alpha,0.1));
   absh = min(absh,tdir*(tfinal - tn));
-  h = absh*tdir; %#ok<NASGU>
   % Advance the integration one step.
   t = tn;
   y = yn;
@@ -4554,3 +4553,8 @@ if isvalid(dud.notice)
   end
   set(dud.notice,'string',nstr);
 end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
