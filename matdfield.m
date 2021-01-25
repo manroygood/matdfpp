@@ -102,7 +102,7 @@ if strcmp(action,'initialize')
             ll = fgetl(fid);
             fclose(fid);
             if ~contains(ll,'%% Created by DF')
-                kk = [kk;k];
+                kk = [kk;k]; %#ok<AGROW>
             else
                 delete(fn)
             end
@@ -452,7 +452,7 @@ if strcmp(action,'initialize')
                 'pos',[peqleft pbot(jj)-fudge peqw texth],...
                 'horizon','center',...
                 'string','=',...
-                'visible','off');
+                'visible','off'); %#ok<AGROW>
             
             ud.h.pval(K) = uicontrol('style','edit',...
                 'pos',[pvleft pbot(jj) pvalw texth],...
@@ -704,7 +704,7 @@ if strcmp(action,'initialize')
         if kk == 2, sep = 'off';end
         sysmen(kk) = uimenu(sysmenu,'label',system(kk).name,...
             'Callback',['matdfield(''system'',',kkk,')'],...
-            'separator',sep,'visible','on');
+            'separator',sep,'visible','on'); %#ok<AGROW>
     end
     set(sysmenu,'user',system);
     ud.h.gallery = sysmenu;
@@ -1468,7 +1468,7 @@ elseif strcmp(action,'proceed')
         if ~isempty(k)
             tstr = [tstr,'             '];
             for j = 1:length(k)
-                tstr = [tstr,'    ',pstring{k(j)}];
+                tstr = [tstr,'    ',pstring{k(j)}]; %#ok<AGROW>
             end
         end
         
@@ -3226,7 +3226,7 @@ elseif strcmp(action,'paraeval')
         for jj = 1:lk
             if (((k(jj) == 1)|(find(lopstr == str(k(jj)-1))))...
                     &((k(jj)+lp-1 == ll)|(find(ropstr == str(k(jj) + lp)))))
-                s = [s,str(pos:(k(jj)-1)),value];
+                s = [s,str(pos:(k(jj)-1)),value]; %#ok<AGROW>
                 pos = k(jj)+lp;
             end
         end
@@ -3448,22 +3448,22 @@ elseif strcmp(action,'savesyst')
         fprintf(fid,'\n');
         nstr = newsysts(k).name;
         nstr = strrep(nstr,'''','''''');
-        nstr = ['H.name = ''', nstr, ''';\n'];
+        nstr = ['H.name = ''', nstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,nstr);
         xname = newsysts(k).xname;
         xnstr = ['H.xname = ''', xname];
         xnstr = strrep(xnstr,'\','\\');
-        xnstr = [xnstr, ''';\n'];
+        xnstr = [xnstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,xnstr);
         tname = newsysts(k).tname;
         tnstr = ['H.tname = ''', tname];
         tnstr = strrep(tnstr,'\','\\');
-        tnstr = [tnstr, ''';\n'];
+        tnstr = [tnstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,tnstr);
         der = newsysts(k).der;
         dstr = ['H.der = ''', der];
         dstr = strrep(dstr,'\','\\');
-        dstr = [dstr, ''';\n'];
+        dstr = [dstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,dstr);
         wind = newsysts(k).wind;
         wstr = ['H.wind = [', num2str(wind),'];\n'];
@@ -3487,12 +3487,12 @@ elseif strcmp(action,'savesyst')
                 pnstr = ['H.pname = {''', pns, ''''];
                 pvstr = ['H.pval = {''', pvs, ''''];
             else
-                pnstr = [pnstr, ',''',pns, ''''];
-                pvstr = [pvstr, ',''',pvs, ''''];
+                pnstr = [pnstr, ',''',pns, '''']; %#ok<AGROW>
+                pvstr = [pvstr, ',''',pvs, '''']; %#ok<AGROW>
             end
         end
-        pnstr = [pnstr, '};\n'];
-        pvstr = [pvstr, '};\n'];
+        pnstr = [pnstr, '};\n']; %#ok<AGROW>
+        pvstr = [pvstr, '};\n']; %#ok<AGROW>
         
         
         fprintf(fid,pnstr);
@@ -3586,7 +3586,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         kk = 0;
         while ~feof(fid)
             kk = kk + 1;
-            newsysts{kk} = fgetl(fid);
+            newsysts{kk} = fgetl(fid); %#ok<AGROW>
         end
         fclose(fid);
         newsysts = newsysts([1:kk]);
@@ -3621,7 +3621,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
             for k = 2:8
                 eval(newsysts{(j-1)*8+k});
             end
-            newsysstruct(j) = H;
+            newsysstruct(j) = H; %#ok<AGROW>
         end
         
     end  % if strcmp(type,'default') & else
@@ -3639,7 +3639,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         newsyst.name = sname;
         ignore = matdfield('addgall',newsyst);
         if ignore == -1
-            ignoresyst{length(ignoresyst)+1} = sname;
+            ignoresyst{length(ignoresyst)+1} = sname; %#ok<AGROW>
         end
     end % for j = 1:nnn
     l = length(ignoresyst);
@@ -3650,7 +3650,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         else
             message = 'The equations ';
             for k = 1:(l-1)
-                message = [message,'"',ignoresyst{k},'", '];
+                message = [message,'"',ignoresyst{k},'", ']; %#ok<AGROW>
             end
             message = {[message,'and "',ignoresyst{l},'" duplicate ',...
                 'equations already in the gallery and were not added.']};

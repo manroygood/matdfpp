@@ -736,7 +736,7 @@ if strcmp(action,'initialize')
                 'pos',[peqleft pbot(jj)-fudge peqw texth],...
                 'horizon','center',...
                 'string','=',...
-                'visible','off');
+                'visible','off'); %#ok<AGROW>
             
             ud.h.pval(K) = uicontrol('style','edit',...
                 'pos',[pvleft pbot(jj) pvalw texth],...
@@ -1003,7 +1003,7 @@ if strcmp(action,'initialize')
         if kk == 2, sep = 'off';end
         sysmen(kk) = uimenu(sysmenu,'label',system(kk).name,...
             'CallBack',['matpplane(''system'',',kkk,')'],...
-            'separator',sep,'visible','off');
+            'separator',sep,'visible','off'); %#ok<AGROW>
     end
     set(sysmenu,'UserData',system);
     ud.h.gallery = sysmenu;
@@ -1111,27 +1111,27 @@ elseif strcmp(action,'savesyst')
         fprintf(fid,'\n');
         nstr = newsysts(k).name;
         nstr = strrep(nstr,'''','''''');
-        nstr = ['H.name = ''', nstr, ''';\n'];
+        nstr = ['H.name = ''', nstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,nstr);
         xname = newsysts(k).xvar;
         xnstr = ['H.xvar = ''', xname];
         xnstr = strrep(xnstr,'\','\\');
-        xnstr = [xnstr, ''';\n'];
+        xnstr = [xnstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,xnstr);
         yname = newsysts(k).yvar;
         ynstr = ['H.yvar = ''', yname];
         ynstr = strrep(ynstr,'\','\\');
-        ynstr = [ynstr, ''';\n'];
+        ynstr = [ynstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,ynstr);
         xder = newsysts(k).xder;
         xdstr = ['H.xder = ''', xder];
         xdstr = strrep(xdstr,'\','\\');
-        xdstr = [xdstr, ''';\n'];
+        xdstr = [xdstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,xdstr);
         yder = newsysts(k).yder;
         ydstr = ['H.yder = ''', yder];
         ydstr = strrep(ydstr,'\','\\');
-        ydstr = [ydstr, ''';\n'];
+        ydstr = [ydstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,ydstr);
         
         pname = strrep(newsysts(k).pname,'\','\\');
@@ -1153,19 +1153,19 @@ elseif strcmp(action,'savesyst')
                 pnstr = ['H.pname = {''', pns, ''''];
                 pvstr = ['H.pval = {''', pvs, ''''];
             else
-                pnstr = [pnstr, ',''',pns, ''''];
-                pvstr = [pvstr, ',''',pvs, ''''];
+                pnstr = [pnstr, ',''',pns, '''']; %#ok<AGROW>
+                pvstr = [pvstr, ',''',pvs, '''']; %#ok<AGROW>
             end
         end
-        pnstr = [pnstr, '};\n'];
-        pvstr = [pvstr, '};\n'];
+        pnstr = [pnstr, '};\n']; %#ok<AGROW>
+        pvstr = [pvstr, '};\n']; %#ok<AGROW>
         
         
         fprintf(fid,pnstr);
         fprintf(fid,pvstr);
         ftstr = ['H.fieldtype = ''', newsysts(k).fieldtype];
-        ftstr - strrep(ftstr,'\','\\');
-        ftstr = [ftstr, ''';\n'];
+        ftstr = strrep(ftstr,'\','\\');
+        ftstr = [ftstr, ''';\n']; %#ok<AGROW>
         fprintf(fid,ftstr);
         nstr = ['H.npts = ', num2str(newsysts(k).npts),';\n'];
         fprintf(fid,nstr);
@@ -1265,7 +1265,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         end
         while ~feof(fid)
             kk = kk + 1;
-            newsysts{kk} = fgetl(fid);
+            newsysts{kk} = fgetl(fid); %#ok<AGROW>
         end
         fclose(fid);
         newsysts = newsysts([1:kk]);
@@ -1320,7 +1320,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
                     wind = newsystemp(16:19);
                     newsyst.wind = [str2num(wind{1}),str2num(wind{2}),...
                         str2num(wind{3}),str2num(wind{4})];
-                    newsysstruct(j+1) = newsyst;
+                    newsysstruct(j+1) = newsyst; %#ok<AGROW>
                 end  % for j = 0:(nnn-1)
             case 'new'
                 x = 11/(kk+22);
@@ -1333,7 +1333,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
                     for k = 2:11
                         eval(newsysts{(j-1)*11+k});
                     end
-                    newsysstruct(j) = H;
+                    newsysstruct(j) = H; %#ok<AGROW>
                 end
                 
         end %switch date
@@ -1352,7 +1352,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         newsyst.name = sname;
         ignore = matpplane('addgall',newsyst);
         if ignore == -1
-            ignoresyst{length(ignoresyst)+1} = sname;
+            ignoresyst{length(ignoresyst)+1} = sname; %#ok<AGROW>
         end
     end % for j = 1:nnn
     l = length(ignoresyst);
@@ -1364,7 +1364,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         else
             message = 'The systems ';
             for k = 1:(l-1)
-                message = [message,'"',ignoresyst{k},'", '];
+                message = [message,'"',ignoresyst{k},'", ']; %#ok<AGROW>
             end
             message = {[message,'and "',ignoresyst{l},'" duplicate ',...
                 'systems already in the gallery and were not added.']};
@@ -1885,7 +1885,7 @@ elseif strcmp(action,'proceed')
                 pn = pname{kk};
                 pv = parav{kk};
                 if isempty(pv)
-                    perr = [perr, sud.h.pval(kk)];
+                    perr = [perr, sud.h.pval(kk)]; %#ok<AGROW>
                 else
                     if isempty(str2num(pv)) % This is an expression.
                         tpv = pv;
@@ -3349,12 +3349,12 @@ elseif strcmp(action,'dirfield')
         lll = find((ayxdc>ayxdl)&(ayxdc>ayxdr));
         Xx = xd(lll+1);
         Yy = yd(lll+1);
-        Xxx = [Xxx;Xx(:)];
-        Yyy = [Yyy;Yy(:)];
+        Xxx = [Xxx;Xx(:)]; %#ok<AGROW>
+        Yyy = [Yyy;Yy(:)]; %#ok<AGROW>
         yxdcp = yxdc(lll);
         yxdcp = yxdcp(:);
-        DXx = [DXx;zeros(size(yxdcp))];
-        DYy = [DYy;yxdcp];
+        DXx = [DXx;zeros(size(yxdcp))]; %#ok<AGROW>
+        DYy = [DYy;yxdcp]; %#ok<AGROW>
     end
     ll = length(hy);
     for j = 1:ll
@@ -3371,12 +3371,12 @@ elseif strcmp(action,'dirfield')
         lll = find((ayxdc>ayxdl)&(ayxdc>ayxdr));
         Xx = xd(lll+1);
         Yy = yd(lll+1);
-        Xxx = [Xxx;Xx(:)];
-        Yyy = [Yyy;Yy(:)];
+        Xxx = [Xxx;Xx(:)]; %#ok<AGROW>
+        Yyy = [Yyy;Yy(:)]; %#ok<AGROW>
         yxdcp = yxdc(lll);
         yxdcp = yxdcp(:);
-        DXx = [DXx;yxdcp];
-        DYy = [DYy;zeros(size(yxdcp))];
+        DXx = [DXx;yxdcp]; %#ok<AGROW>
+        DYy = [DYy;zeros(size(yxdcp))]; %#ok<AGROW>
     end
     mgrid = Xxx(:) + Yyy(:)*sqrt(-1);
     Vv = DXx(:) + DYy(:)*sqrt(-1);
@@ -4605,11 +4605,11 @@ elseif strcmp(action,'newton')
     
     errorlim = norm(functionf,inf)*0.000001;
     
-    while ( (norm(functionf,inf) > errorlim) & (Iter < Iterlimit)	)
+    while (norm(functionf,inf) > errorlim) && (Iter < Iterlimit)
         Iter = Iter + 1;
         
         % Now we calculate the jacobian.
-        
+        Jacobian=zeros(2,2);
         for jjw=1:2
             sav = zNext(jjw);
             zNext(jjw) = zNext(jjw) + h;
@@ -4661,9 +4661,9 @@ elseif strcmp(action,'paraeval')
         s = [];
         pos = 1;
         for jj = 1:lk
-            if (((k(jj) == 1)|(find(lopstr == str(k(jj)-1))))...
-                    &((k(jj)+lp-1 == ll)|(find(ropstr == str(k(jj) + lp)))))
-                s = [s,str(pos:(k(jj)-1)),value];
+            if ((k(jj) == 1)||(find(lopstr == str(k(jj)-1))))...
+                    &&((k(jj)+lp-1 == ll)||(find(ropstr == str(k(jj) + lp))))
+                s = [s,str(pos:(k(jj)-1)),value]; %#ok<AGROW>
                 pos = k(jj)+lp;
             end
         end
@@ -5913,6 +5913,7 @@ elseif strcmp(action,'zoomsqu')
     v = lamb*ww;
     if ~all(v > 0.01*DY)
         points = [w([1 1 2 2]);w([3 4 3 4])];
+        lambs=zeros(1,4);
         for j=1:4
             lambs(j) = max(abs(points(:,j)-cent)./ww);
         end
@@ -6922,11 +6923,11 @@ while ~stop
         v = [rr,rrr];
         rr = v(:,[refine+1,refine+2]);   % Use this next time.
         [m,ii] = max(v(1,:));
-        if( 1< min(ii) & max(ii)<refine+2 )  % If the max is in the middle.
+        if( 1< min(ii) && max(ii)<refine+2 )  % If the max is in the middle.
             kk=0;
-            while ( (kk<tk) & (~stop) )
+            while (kk<tk) && (~stop) 
                 kk = kk+1;
-                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &...
+                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &&...
                         (abs(v(2,ii)-turn(2,kk))<paraeps) )
                     z0 = yy(:,refine);
                     ud.y = z0;
@@ -6943,7 +6944,7 @@ while ~stop
             end
             tk = tk + 1;
             if tk > size(turn,2)
-                turn = [turn,zeros(2,10)];
+                turn = [turn,zeros(2,10)]; %#ok<AGROW>
             end
             turn(:,tk+1) = v(:,ii);
         end
@@ -7181,7 +7182,7 @@ while ~stop
             end
             tk = tk + 1;
             if tk > size(turn,2)
-                turn = [turn,zeros(2,10)];
+                turn = [turn,zeros(2,10)]; %#ok<AGROW>
             end
             turn(:,tk+1) = v(:,ii);
         end
