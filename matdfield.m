@@ -68,7 +68,7 @@ if strcmp(action,'initialize')
     ll = length(tmpdir);
     tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if isempty(strfind(tmpdir,p))
+    if ~contains(p,tmpdir)
         ud.remtd = 1;
         addpath(tempdir)
     end
@@ -88,7 +88,7 @@ if strcmp(action,'initialize')
             if strcmp(ll,'%% Created by matdfield')
                 delete(fn)
             else
-                kk = [kk;k];
+                kk = [kk;k]; %#ok<AGROW>
             end
         end
     end
@@ -101,7 +101,7 @@ if strcmp(action,'initialize')
             ll = fgetl(fid);
             ll = fgetl(fid);
             fclose(fid);
-            if isempty(strfind('%% Created by DF',ll))
+            if ~contains(ll,'%% Created by DF')
                 kk = [kk;k];
             else
                 delete(fn)
@@ -857,7 +857,7 @@ elseif strcmp(action,'proceed')
         % function array smart.
         
         l=length(derivstr);
-        for ( k = fliplr(strfind('.',derivstr)))
+        for  k = fliplr(strfind(derivstr,'.'))
             if (find('*/^' == derivstr(k+1)))
                 derivstr = [derivstr(1:k-1), derivstr(k+1:l)];
             end
@@ -866,7 +866,7 @@ elseif strcmp(action,'proceed')
         for kk = 1:4
             paraval = parav{kk};
             l=length(paraval);
-            for ( k = fliplr(strfind('.',paraval)))
+            for k = fliplr(strfind(paraval,'.'))
                 if (find('*/^' == paraval(k+1)))
                     paraval = [paraval(1:k-1), paraval(k+1:l)];
                 end
@@ -1675,7 +1675,7 @@ elseif strcmp(action,'hotcold')
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
     mehc = dud.menu(6);
-    if (strfind(get(mehc,'label'),'inactive'))
+    if contains(get(mehc,'label'),'inactive')
         set(dfdisp,'WindowButtonDownFcn',' ');
         set(mehc,'label','Make the Display Window active.');
         nstr{5,1} = 'The Display Window is not active.';
@@ -2981,7 +2981,7 @@ elseif strcmp(action,'levcomp')
     KK = max(val);
     lfcn = get(ud.lfcn,'string');
     l=length(lfcn);
-    for ( k = fliplr(strfind('.',lfcn)))
+    for k = fliplr(strfind(lfcn,'.'))
         if (find('*/^' == lfcn(k+1)))
             lfcn = [lfcn(1:k-1), lfcn(k+1:l)];
         end
@@ -3216,7 +3216,7 @@ elseif strcmp(action,'paraeval')
     if strcmp(para,str)
         str = value;
     elseif (ll >= lp+1)
-        k = strfind(para,str);
+        k = strfind(str,para);
         
         lk = length(k);
         lopstr = '(+-*/^';

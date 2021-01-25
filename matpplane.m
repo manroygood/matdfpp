@@ -71,7 +71,7 @@ if strcmp(action,'initialize')
     ll = length(tmpdir);
     tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if ~contains(tmpdir,p)
+    if ~contains(p,tmpdir)
         ud.remtd = 1;
         addpath(tempdir)
     end
@@ -1759,7 +1759,7 @@ elseif strcmp(action,'proceed')
         
         xderivstr(find(abs(xderivstr)==32))=[];
         l=length(xderivstr);
-        for ( k = fliplr(strfind('.',xderivstr)))
+        for  k = fliplr(strfind(xderivstr,'.'))
             if (find('*/^' == xderivstr(k+1)))
                 xderivstr = [xderivstr(1:k-1), xderivstr(k+1:l)];
             end
@@ -1768,7 +1768,7 @@ elseif strcmp(action,'proceed')
         
         yderivstr(find(abs(yderivstr)==32))=[];
         l=length(yderivstr);
-        for ( k = fliplr(strfind('.',yderivstr)))
+        for k = fliplr(strfind(yderivstr,'.'))
             if (find('*/^' == yderivstr(k+1)))
                 yderivstr = [yderivstr(1:k-1), yderivstr(k+1:l)];
             end
@@ -1782,7 +1782,7 @@ elseif strcmp(action,'proceed')
                 kkk = find(pabs==32);
                 pval(kkk) = [];
                 l = length(pval);
-                for ( k = fliplr(strfind('.',pval)))
+                for k = fliplr(strfind(pval,'.'))
                     if (find('*/^' == pval(k+1)))
                         pval = [pval(1:k-1), pval(k+1:l)];
                     end
@@ -3195,8 +3195,8 @@ elseif strcmp(action,'dirfield')
     
     % Set up the original mesh.
     
-    XXXg=Xmin + deltax*[0:N-1];
-    YYYg=Ymin + deltay*[0:N-1];
+    XXXg=Xmin + deltax*(0:N-1);
+    YYYg=Ymin + deltay*(0:N-1);
     
     [Xx,Yy]=meshgrid(XXXg,YYYg);
     
@@ -3435,7 +3435,8 @@ elseif strcmp(action,'hotcold')
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
     mehc = dud.menu(6);
-    if (strfind(get(mehc,'label'),'inactive'))
+    mehclabel=get(mehc,'label');
+    if contains(mehclabel,'inactive')
         set(ppdisp,'WindowButtonDownFcn',' ');
         set(mehc,'label','Make the Display Window active.');
         nstr{5,1} = 'The Display Window is not active.';
@@ -4652,7 +4653,7 @@ elseif strcmp(action,'paraeval')
     if strcmp(para,str)
         str = value;
     elseif (ll >= lp+1)
-        k = strfind(para,str);
+        k = strfind(str,para);
         
         lk = length(k);
         lopstr = '(+-*/^';
@@ -6107,7 +6108,7 @@ elseif strcmp(action,'levcomp')
     KK = max(val);
     lfcn = get(ud.lfcn,'string');
     l=length(lfcn);
-    for ( k = fliplr(strfind('.',lfcn)))
+    for  k = fliplr(strfind(lfcn,'.'))
         if (find('*/^' == lfcn(k+1)))
             lfcn = [lfcn(1:k-1), lfcn(k+1:l)];
         end
