@@ -68,7 +68,7 @@ function output = matdfield(action,input1,input2,input3)
     ll = length(tmpdir);
     tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if isempty(strfind(tmpdir,p))
+    if isempty(findstr(tmpdir,p))
       ud.remtd = 1;
       addpath(tempdir)
     end
@@ -101,7 +101,7 @@ function output = matdfield(action,input1,input2,input3)
 	ll = fgetl(fid);
 	ll = fgetl(fid);
 	fclose(fid);
-	if isempty(strfind('%% Created by DF',ll))
+	if isempty(findstr('%% Created by DF',ll))
 	  kk = [kk;k];
 	else
 	  delete(fn)
@@ -857,7 +857,7 @@ function output = matdfield(action,input1,input2,input3)
       % function array smart.
       
       l=length(derivstr);
-      for ( k = fliplr(strfind('.',derivstr)))
+      for ( k = fliplr(findstr('.',derivstr)))
 	if (find('*/^' == derivstr(k+1)))
 	  derivstr = [derivstr(1:k-1), derivstr(k+1:l)];
 	end
@@ -866,7 +866,7 @@ function output = matdfield(action,input1,input2,input3)
       for kk = 1:4
 	paraval = parav{kk};
 	l=length(paraval);
-	for ( k = fliplr(strfind('.',paraval)))
+	for ( k = fliplr(findstr('.',paraval)))
 	  if (find('*/^' == paraval(k+1)))
 	    paraval = [paraval(1:k-1), paraval(k+1:l)];
 	  end
@@ -894,7 +894,7 @@ function output = matdfield(action,input1,input2,input3)
       pstring{4} = '';
       
       for kk = 1:4
-	if ~isempty(parav{kk});
+	if ~isempty(parav{kk})
 	  tp1str = parav{kk};
 	  
 	  kxder = find(abs(tp1str)==42);  % Get rid of *s
@@ -949,7 +949,7 @@ function output = matdfield(action,input1,input2,input3)
       perr = [];
       pnameh = sud.h.pname;
       pvalh = sud.h.pval;
-      for kk = 1:4;
+      for kk = 1:4
 	pn = char(get(pnameh(kk),'string'));
 	pn(find(abs(pn)==92))=[];
 	pv = char(get(pvalh(kk),'string'));
@@ -1076,7 +1076,7 @@ function output = matdfield(action,input1,input2,input3)
 	bottom = 20;
 	
 	
-	if r*dfdh > sh - bottom -35;
+	if r*dfdh > (sh - bottom -35)
 	  r = (sh-bottom-35)/dfdh;
 	  fs = 10*r;
 	  lw = 0.5*r;
@@ -1675,7 +1675,7 @@ function output = matdfield(action,input1,input2,input3)
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
     mehc = dud.menu(6);
-    if (strfind(get(mehc,'label'),'inactive'))
+    if (findstr(get(mehc,'label'),'inactive'))
       set(dfdisp,'WindowButtonDownFcn',' ');
       set(mehc,'label','Make the Display Window active.');
       nstr{5,1} = 'The Display Window is not active.';
@@ -1890,7 +1890,7 @@ function output = matdfield(action,input1,input2,input3)
     pvalh = sud.h.pval;
     pflag = zeros(1,4);
     perr = [];
-    for kk = 1:4;
+    for kk = 1:4
       pn = char(get(pnameh(kk),'string'));
       pv = char(get(pvalh(kk),'string'));
       if ~isempty(pn)
@@ -2981,7 +2981,7 @@ function output = matdfield(action,input1,input2,input3)
     KK = max(val);
     lfcn = get(ud.lfcn,'string');
     l=length(lfcn);
-    for ( k = fliplr(strfind('.',lfcn)))
+    for ( k = fliplr(findstr('.',lfcn)))
       if (find('*/^' == lfcn(k+1)))
 	lfcn = [lfcn(1:k-1), lfcn(k+1:l)];
       end
@@ -2992,7 +2992,7 @@ function output = matdfield(action,input1,input2,input3)
     pflag = zeros(1,4);
     perr = [];
     lfcn(find(abs(lfcn)==32))=[];
-    for kk = 1:4;
+    for kk = 1:4
       pn = get(pnameh(kk),'string');
       pv = get(pvalh(kk),'string');
       if ~isempty(pn)
@@ -3216,7 +3216,7 @@ function output = matdfield(action,input1,input2,input3)
     if strcmp(para,str)
       str = value;
     elseif (ll >= lp+1)
-      k = strfind(para,str);
+      k = findstr(para,str);
       
       lk = length(k);
       lopstr = '(+-*/^';
@@ -3266,7 +3266,7 @@ function output = matdfield(action,input1,input2,input3)
       dud = get(dfdisp,'user');
       if isfield(dud,'function')
 	fcn = [tempdir,dud.function];
-	  if (exist(fcn)==2) delete([fcn,'.m']);end
+	  if (exist(fcn)==2); delete([fcn,'.m']);end
       end
     end
     h = findobj('tag','matdfield');
@@ -3291,7 +3291,7 @@ function output = matdfield(action,input1,input2,input3)
     elseif strcmp(name,'matdfield Linearization')
       dud = get(fig,'user');
       fcn = dud.function;
-	if (exist(fcn)==2) delete([fcn,'.m']);end    
+	if (exist(fcn)==2); delete([fcn,'.m']);end    
 	delete(findobj('label',name));
 	delete(fig);
     else
@@ -3539,7 +3539,7 @@ function output = matdfield(action,input1,input2,input3)
       xp = [xp(2),x,x,xp(2)];
       set(patchh,'xdata',xp);
       set(lineh,'xdata',xl);
-      ;
+
       sep = 'on';
       for kk = 1:length(system)
 	kkk = num2str(kk);
@@ -3615,10 +3615,10 @@ function output = matdfield(action,input1,input2,input3)
       xp = [xp(2),x,x,xp(2)];
       set(patchh,'xdata',xp);
       set(lineh,'xdata',xl);
-      ;
+      
       nnn = kk/8;  % The number of equations.
       for j = 1:nnn
-	for k = 2:8 ;
+	for k = 2:8 
 	  eval(newsysts{(j-1)*8+k});
 	end
 	newsysstruct(j) = H;
@@ -3632,13 +3632,13 @@ function output = matdfield(action,input1,input2,input3)
       xp = [xp(2),x,x,xp(2)];
       set(patchh,'xdata',xp);
       set(lineh,'xdata',xl);
-      ;
+      
       newsyst = newsysstruct(j);
       sname = newsyst.name;
       sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
       newsyst.name = sname;
       ignore = matdfield('addgall',newsyst);
-      if ignore == -1;
+      if ignore == -1
 	ignoresyst{length(ignoresyst)+1} = sname;
       end  
     end % for j = 1:nnn
@@ -3673,8 +3673,7 @@ function output = matdfield(action,input1,input2,input3)
     x = 1;
     xp = [xp(2),x,x,xp(2)];
     set(patchh,'xdata',xp);
-    set(lineh,'xdata',xl);
-    ;
+    set(lineh,'xdata',xl);    
     delete(waith);
     
   elseif strcmp(action,'addgall')
@@ -3711,13 +3710,13 @@ function output = matdfield(action,input1,input2,input3)
     systems = get(sud.h.gallery,'user');
     ll = length(systems);
     kk = 1;
-    while ((kk<=ll) & (~strcmp(sname,systems(kk).name)))
+    while ((kk<=ll) && (~strcmp(sname,systems(kk).name)))
       kk = kk + 1;
     end
     nameflag = (kk<=ll);
     ssyst = rmfield(syst,'name');
     kk = 1;
-    while ((kk<=ll) & (~isequal(ssyst,rmfield(systems(kk),'name'))))
+    while ((kk<=ll) && (~isequal(ssyst,rmfield(systems(kk),'name'))))
       kk = kk + 1;
     end
     systflag = 2*(kk<=ll);
@@ -3876,7 +3875,7 @@ function output = matdfield(action,input1,input2,input3)
     dfset = findobj('name','matdfield Setup');
     ud = get(dfset,'user');
     kk = input1;
-    if isstr(kk)
+    if ischar(kk)
       kk = str2num(input1);
     end
     system = get(ud.h.gallery,'user');
@@ -4553,8 +4552,3 @@ if isvalid(dud.notice)
   end
   set(dud.notice,'string',nstr);
 end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
