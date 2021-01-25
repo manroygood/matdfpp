@@ -982,7 +982,7 @@ elseif strcmp(action,'proceed')
         % We have to make the derivative strings array smart.
         
         l = length(derivstr);
-        for (k=fliplr(find((derivstr=='^')|(derivstr=='*')|(derivstr=='/'))))
+        for k=fliplr(find((derivstr=='^')|(derivstr=='*')|(derivstr=='/')))
             derivstr = [derivstr(1:k-1) '.' derivstr(k:l)];
             l = l+1;
         end
@@ -990,7 +990,7 @@ elseif strcmp(action,'proceed')
         % Some more error trapping.
         
         eval(['res = ',derivstr, ';'],'err = 1;');
-        if err | isempty(res)
+        if err || isempty(res)
             if isempty(perr)
                 errmsg = ['The differential equation ',...
                     'is not entered correctly.'];
@@ -1016,9 +1016,9 @@ elseif strcmp(action,'proceed')
         fcnstr = ['function YYyYypr = ',dfcn,'(TtTt,YyYy)\n\n'];
         commstr = '%%%% Created by matdfield\n\n';
         varstr = [Xname,' = YyYy;', Tname,' = TtTt;\n\n'];
-        lenstr = ['l = length(YyYy);\n'];
+        lenstr = 'l = length(YyYy);\n';
         derstr1 = ['YYyYypr = ', derivstr,';\n'];
-        derstr2 = ['if (length(YYyYypr) < l) YYyYypr = YYyYypr*ones(1,l);end\n'];
+        derstr2 = 'if (length(YYyYypr) < l) YYyYypr = YYyYypr*ones(1,l);end\n';
         
         dff = fopen([tempdir,dfcn,'.m'],'w');
         fprintf(dff,fcnstr);
@@ -1585,8 +1585,8 @@ elseif strcmp(action,'dirfield')
     
     % Set up the original mesh.
     
-    XXXg=Xmin + deltax*[0:N-1];
-    TTTg=Tmin + deltat*[0:N-1];
+    XXXg=Xmin + deltax*(0:N-1);
+    TTTg=Tmin + deltat*(0:N-1);
     
     [Tt,Xx]=meshgrid(TTTg,XXXg);
     
@@ -1798,7 +1798,7 @@ elseif strcmp(action,'solution')
     else
         intplus = [initpt(1),initpt(4)];
         intminus = [initpt(1),initpt(3)];
-        initpt = initpt([1:2]);
+        initpt = initpt(1:2);
     end
     stopbutt =findobj('tag','stop');
     set(stopbutt,'vis','on','enable','on');
@@ -3036,8 +3036,8 @@ elseif strcmp(action,'levcomp')
     N = 50; k = 4;
     deltax=(Xmax - Xmin)/(N-1);
     deltay=(Ymax - Ymin)/(N-1);
-    XXXg=Xmin + deltax*[-k:N+k];
-    YYYg=Ymin + deltay*[-k:N+k];
+    XXXg=Xmin + deltax*(-k:N+k);
+    YYYg=Ymin + deltay*(-k:N+k);
     
     [Xx,Yy]=meshgrid(XXXg,YYYg);
     Xxx=Xx(:);Yyy=Yy(:);
@@ -3105,7 +3105,7 @@ elseif strcmp(action,'showbar')
     set(0,'showhiddenhandles','on');
     state = get(sbfig,'toolbar');
     if strcmp(state,'figure')
-        fixtb = ['set(gcbo,''state'',''off'');'];
+        fixtb = 'set(gcbo,''state'',''off'');';
         set(findobj(sbfig,'tooltipstr','Zoom Out'),...
             'clickedcallback',['matdfield(''zoomback'');' fixtb]);
         set(findobj(sbfig,'tooltipstr','Zoom In'),...
@@ -3401,7 +3401,7 @@ elseif strcmp(action,'savesyst')
             systems = get(sud.h.gallery,'user');
             ll = length(systems);
             if ll == 0
-                warndlg(['There are no equations to make up a gallery.'],'Warning');
+                warndlg('There are no equations to make up a gallery.','Warning');
                 return
             end
             names = cell(ll,1);
@@ -3589,28 +3589,29 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
             newsysts{kk} = fgetl(fid); %#ok<AGROW>
         end
         fclose(fid);
-        newsysts = newsysts([1:kk]);
+        newsysts = newsysts(1:kk);
         systline = newsysts(kk);
         while strcmp(systline,'')
             kk = kk - 1;
-            newsysts = newsysts([1:kk]);
+            newsysts = newsysts(1:kk);
             systline = newsysts(kk);
         end
-        false = 0;
-        if mod(kk,8 )
-            false = 1;
-        end
-        if false
+%         falseFlag = 0;
+%         if mod(kk,8 )
+%             falseFlag = 1;
+%         end
+%         if falseFlag
+        if mod(kk,8)
             if strcmp(type,'system')
                 wstr = ['The file ',fname, ' does not define a proper equation.'];
             elseif strcmp(type,'gallery')
-                wstr = ['The file ',fname, ' does not define a proper gallery.']
+                wstr = ['The file ',fname, ' does not define a proper gallery.'];
             end
             warndlg(wstr,'Warning');
             set(sud.h.gallery,'enable','on');
             delete(waith);
             return
-        end %if false
+        end %if mod(kk,8)
         x = 8 /(kk+16);
         xp = [xp(2),x,x,xp(2)];
         set(patchh,'xdata',xp);

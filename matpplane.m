@@ -1066,7 +1066,7 @@ elseif strcmp(action,'savesyst')
             systems = get(sud.h.gallery,'UserData');
             ll = length(systems);
             if ll == 0
-                warndlg(['There are no systems to make up a gallery.'],'Warning');
+                warndlg('There are no systems to make up a gallery.','Warning');
                 return
             end
             names = cell(ll,1);
@@ -1268,7 +1268,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
             newsysts{kk} = fgetl(fid); %#ok<AGROW>
         end
         fclose(fid);
-        newsysts = newsysts([1:kk]);
+        newsysts = newsysts(1:kk);
         false = 0;
         switch date
             case 'old'
@@ -1303,7 +1303,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
                 flds = fieldnames(sud.c);
                 flds=flds(:);
                 for j = 0:(nnn-1)
-                    newsystemp = newsysts([(j*19+1):(j+1)*19]);
+                    newsystemp = newsysts((j*19+1):(j+1)*19);
                     newsyst.name = newsystemp{1};
                     newsyst.xvar = newsystemp{2};
                     newsyst.yvar = newsystemp{3};
@@ -1979,11 +1979,11 @@ elseif strcmp(action,'proceed')
         fcnstr = ['function YYyYypr = ',dfcn,'(t,YyYy)\n\n'];
         commstr = '%%%% Created by matpplane\n\n';
         varstr = [Xname,' = YyYy(1,:);', Yname,' = YyYy(2,:);\n\n'];
-        lenstr = ['l = length(YyYy(1,:));\n'];
+        lenstr = 'l = length(YyYy(1,:));\n';
         derstr1 = ['XxXxxpr = ', xderivstr,';\n'];
-        derstr2 = ['if (length(XxXxxpr) < l) XxXxxpr = XxXxxpr*ones(1,l);end\n'];
+        derstr2 = 'if (length(XxXxxpr) < l) XxXxxpr = XxXxxpr*ones(1,l);end\n';
         derstr3 = ['YyYyypr = ', yderivstr,';\n'];
-        derstr4 = ['if (length(YyYyypr) < l) YyYyypr = YyYyypr*ones(1,l);end\n'];
+        derstr4 = 'if (length(YyYyypr) < l) YyYyypr = YyYyypr*ones(1,l);end\n';
         derstr5 = 'YYyYypr = [XxXxxpr;YyYyypr];\n';
         ppf = fopen([tempdir,dfcn,'.m'],'w');
         
@@ -2120,7 +2120,7 @@ elseif strcmp(action,'proceed')
             
             dud.title.axes = axes('box','off','xlim',[0 1],'ylim',[0 1],...
                 'units','pix','vis','off',...
-                'xtick',[-1],'ytick',[-1],...
+                'xtick',-1,'ytick',-1,...
                 'xticklabel','','yticklabel','');
             
             dud.title.eq = text(0.01,0.5,' ','vert','middle');
@@ -2186,7 +2186,7 @@ elseif strcmp(action,'proceed')
             
             % Configure the Toolbar.
             
-            fixtb = ['set(gcbo,''state'',''off'');'];
+            fixtb = 'set(gcbo,''state'',''off'');';
             
             set(ppdisp,'ToolBar','none');
             
@@ -2839,7 +2839,7 @@ elseif strcmp(action,'linear')
         % Set up the title.
         
         dud.title.axes = axes('box','off','xlim',[0 1],'ylim',[0 1],...
-            'units','pix','vis','off','xtick',[-1],'ytick',[-1],...
+            'units','pix','vis','off','xtick',-1,'ytick',-1,...
             'xticklabel','','yticklabel','');
         
         dud.title.eq = text(0.07,0.5,' ','vert','middle');
@@ -3245,8 +3245,8 @@ elseif strcmp(action,'dirfield')
     
     % Set up the original mesh.
     
-    XXXg=Xmin + deltax*[-k:N+k];
-    YYYg=Ymin + deltay*[-k:N+k];
+    XXXg=Xmin + deltax*(-k:N+k);
+    YYYg=Ymin + deltay*(-k:N+k);
     
     [Xx,Yy]=meshgrid(XXXg,YYYg);
     
@@ -3584,7 +3584,7 @@ elseif strcmp(action,'solution')
     else
         intplus = [initpt(3),initpt(5)];
         intminus = [initpt(3),initpt(4)];
-        initpt = initpt([1:2]);
+        initpt = initpt(1:2);
         
     end
     stopbutt = findobj(disph,'tag','stop');
@@ -4446,7 +4446,7 @@ elseif strcmp(action,'showbar')
     state = get(sbfig,'toolbar');
     if strcmp(state,'figure')
         name = get(sbfig,'name');
-        fixtb = ['set(gcbo,''state'',''off'');'];
+        fixtb = 'set(gcbo,''state'',''off'');';
         set(findobj(sbfig,'tooltipstr','Print'),...
             'clickedCallBackback','matpplane(''print'');');
         switch name
@@ -5225,7 +5225,7 @@ elseif strcmp(action,'plotxyfig')  % Build the graph figure.
         'box','on',...
         'drawmode','fast',...
         'nextplot','add',...
-        'xtick',[-1],'ytick',[-1],...
+        'xtick',-1,'ytick',-1,...
         'xticklabel','','yticklabel','',...
         'xlim',[0,1],'ylim',[0,1],...
         'clipping','on','visible','off');
@@ -5285,7 +5285,7 @@ elseif strcmp(action,'plotxyfig')  % Build the graph figure.
     tax = axes('box','off',...
         'xlim',[0 1],'ylim',[0 1],...
         'units','pix','vis','off',...
-        'xtick',[-1],'ytick',[-1],...
+        'xtick',-1,'ytick',-1,...
         'xticklabel','','yticklabel','');
     titb = axb + axh;
     titl = axl;
@@ -6163,8 +6163,8 @@ elseif strcmp(action,'levcomp')
     N = 50; k = 4;
     deltax=(Xmax - Xmin)/(N-1);
     deltay=(Ymax - Ymin)/(N-1);
-    XXXg=Xmin + deltax*[-k:N+k];
-    YYYg=Ymin + deltay*[-k:N+k];
+    XXXg=Xmin + deltax*(-k:N+k);
+    YYYg=Ymin + deltay*(-k:N+k);
     
     [Xx,Yy]=meshgrid(XXXg,YYYg);
     Xxx=Xx(:);Yyy=Yy(:);
