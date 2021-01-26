@@ -3594,38 +3594,38 @@ elseif strcmp(action,'solution')
     solver = settings.solver;
     switch solver
         case 'Dormand Prince'
-            solh = @ppdp45;
+            solh = @matppdp45;
             opt = disph;
         case 'Runge-Kutta 4'
-            solh = @pprk4;
+            solh = @matpprk4;
             opt = disph;
         case 'ode45'
             solh = @ode45;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23'
             solh = @ode23;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode113'
             solh = @ode113;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode15s'
             solh = @ode15s;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23s'
             solh = @ode23s;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23t'
             solh = @ode23t;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23tb'
             solh = @ode23tb;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
     end
     
@@ -4241,7 +4241,7 @@ elseif strcmp(action,'stunst')
     offs = offset./lm;
     ud = get(dud.axes,'UserData');
     atol = tol*ud.DY*1e-4';
-    options = odeset('OutputFcn',@ppout,'Refine',refine,...
+    options = odeset('OutputFcn',@matppout,'Refine',refine,...
         'RelTol',tol,'Abstol',atol);
     stopbutt = findobj('tag','stop');
     set(stopbutt,'vis','on','enable','on');
@@ -4257,38 +4257,38 @@ elseif strcmp(action,'stunst')
     solver = settings.solver;
     switch solver
         case 'Dormand Prince'
-            solh = @ppdp45;
+            solh = @matppdp45;
             opt = ppdisp;
         case 'Runge-Kutta 4'
-            solh = @pprk4;
+            solh = @matpprk4;
             opt = ppdisp;
         case 'ode45'
             solh = @ode45;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23'
             solh = @ode23;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode113'
             solh = @ode113;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode15s'
             solh = @ode15s;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23s'
             solh = @ode23s;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23t'
             solh = @ode23t;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
         case 'ode23tb'
             solh = @ode23tb;
-            opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+            opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
     end
     exist(dfcn);
@@ -6493,14 +6493,14 @@ elseif strcmp(action,'periodic')
     z0 = z00;
     ptstr = [' (',num2str(z0(1),2), ', ', num2str(z0(2),2), ')'];
     solver = dud.settings.solver;
-    opt = odeset('OutputFcn',@ppout,'Refine',refine,...
+    opt = odeset('OutputFcn',@matppout,'Refine',refine,...
         'RelTol',tol,'Abstol',atol);
     switch solver
         case 'Dormand Prince'
-            solh = @ppdp45;
+            solh = @matppdp45;
             opt = ppdisp;
         case 'Runge-Kutta 4'
-            solh = @pprk4;
+            solh = @matpprk4;
             opt = ppdisp;
         case 'ode45'
             solh = @ode45;
@@ -6674,760 +6674,4 @@ elseif strcmp(action,'periodic')
         set(notice,'string',nstr);
     end
     drawnow
-    
-    
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function [tout,yout] = ppdp45(dfcn,tspan,y0,disph)
-
-% PPDP45 is an implementation of the explicit Runge-Kutta (4,5) which
-%        is described in Chapters 5 & 6 of John Dormand's book,
-%        Numerical Methods for Differential Equations.
-%
-%        This is the same algorithm used in ODE45, part of the new MATLAB
-%        ODE Suite.  Details are to be found in The MATLAB ODE Suite,
-%        L. F. Shampine and M. W. Reichelt, SIAM Journal on Scientific
-%        Computing, 18-1, 1997.
-
-
-% Input the UserData data.
-
-dud = get(disph,'UserData');
-dispha = dud.axes;
-ud = get(dispha,'UserData');
-refine = dud.settings.refine;
-tol = dud.settings.tol;
-gstop = ud.gstop;
-plotf = ud.plot;
-DY = ud.DY;
-col = dud.color.temp;
-speed = dud.settings.speed;
-slow = (speed < 100);
-
-% Initialize the stopping criteria.
-if ishghandle(gstop)
-    
-    % Initialize detection of closed orbits & limit cycles.
-    % Choose a random direction & initialize the search for orbit maxima in
-    % that direction.
-    
-    theta = rand*2*pi;
-    R = [cos(theta), sin(theta); -sin(theta),cos(theta)];
-    qq = R*(y0(:));
-    rr = [qq,qq];
-    z = DY(1) + sqrt(-1)*DY(2);
-    w=exp(1i*theta);
-    a1 = w*z;
-    a2 = w*(z');
-    a=max(abs(real([a1,a2])));
-    b=max(abs(imag([a1,a2])));
-    perpeps = a*0.00001; % a/2000;	% We want to be real
-    % close in this direction.
-    paraeps = b/100;	% We do not have to be
-    % so careful in this direction.
-    tk = 0;
-    turn = zeros(2,10);
-    
-    % The test for an equilibrium point.
-    
-    sinkeps = 0.005/refine;
-    
-    %  The compute window.
-    
-    cwind = ud.cwind;
-end
-% The stop button.
-
-stop = 0;
-ud.stop = 0;
-
-% Set the the line handle.
-
-ph = plot([y0(1),y0(1)],[y0(2),y0(2)],...
-    'color',col,...
-    'erase','none',...
-    'parent',dispha);
-ud.line = ph;
-set(dispha,'UserData',ud);
-
-% Initialize the loop.
-
-t0 = tspan(1);
-tfinal = tspan(2);
-tdir = sign(tfinal - t0);
-t = t0;
-y = y0(:);
-
-% By default, hmax is 1/10 of the interval.
-hmax = min(abs(0.1*(tfinal-t)),1);
-
-rDY = DY(:,ones(1,refine));
-steps = 0;
-block = 120;
-tout = zeros(block,1);
-yout = zeros(block,2);
-
-N = 1;
-tout(N) = t;
-yout(N,:) = y.';
-
-% Initialize method parameters.
-pow = 1/5;
-%  C = [1/5; 3/10; 4/5; 8/9; 1; 1];
-%  Not needed because the sytem is autonomous.
-A = [
-    1/5         3/40    44/45   19372/6561      9017/3168
-    0           9/40    -56/15  -25360/2187     -355/33
-    0           0       32/9    64448/6561      46732/5247
-    0           0       0       -212/729        49/176
-    0           0       0       0               -5103/18656
-    0           0       0       0               0
-    0           0       0       0               0
-    ];
-bhat = [35/384 0 500/1113 125/192 -2187/6784 11/84 0]';
-% E = bhat - b.
-E = [71/57600; 0; -71/16695; 71/1920; -17253/339200; 22/525; -1/40];
-if refine > 1
-    sigma = (1:refine-1) / refine;
-    S = cumprod(sigma(ones(4,1),:));
-    bstar = [
-        1       -183/64     37/12       -145/128
-        0       0       0       0
-        0       1500/371    -1000/159   1000/371
-        0       -125/32     125/12      -375/64
-        0       9477/3392   -729/106    25515/6784
-        0       -11/7       11/3        -55/28
-        0       3/2     -4      5/2
-        ];
-    bstar = bstar*S;
-    
-end
-
-f = zeros(2,7);
-f0 = feval(dfcn,t,y);
-
-mm = max(abs(f0./DY));
-absh = hmax;
-if mm
-    absh = min(absh,1/(100*mm));
-end
-
-f(:,1) = f0;
-minNsteps =20;
-
-% THE MAIN LOOP
-
-tic
-while ~stop
-    
-    % hmin is a small number such that t+h is distinquishably
-    % different from t if abs(h) > hmin.
-    hmin = 16*eps*abs(t);
-    absh = min(hmax, max(hmin, absh));
-    h = tdir * absh;
-    
-    % LOOP FOR ADVANCING ONE STEP.
-    while stop~=5
-        % hC= h * C;
-        hA = h * A;
-        
-        f(:,2) = feval(dfcn, t, y + f*hA(:,1));
-        f(:,3) = feval(dfcn, t, y + f*hA(:,2));
-        f(:,4) = feval(dfcn, t, y + f*hA(:,3));
-        f(:,5) = feval(dfcn, t, y + f*hA(:,4));
-        f(:,6) = feval(dfcn, t, y + f*hA(:,5));
-        tn = t + h;
-        yn = y + f*h*bhat;
-        f(:,7) = feval(dfcn, tn, yn);
-        
-        % Estimate the error.
-        err = abs(h * f * E);
-        alpha = (2*max(err./((abs(y)+abs(yn)+DY*1e-3)*tol)))^pow;
-        if alpha < 1         % Step is OK
-            break
-        else
-            if absh <= hmin	% This keeps us out of an infinite loop.
-                stop = 5;
-                break;
-            end
-            
-            absh = max(hmin,0.8*absh / alpha);
-            h = tdir * absh;
-        end  % if alpha < 1
-    end  % while stop~=5
-    steps = steps + 1;
-    
-    
-    oldN = N;
-    N = N + refine;
-    if N > length(tout)
-        tout = [tout; zeros(block,1)];   %#ok<AGROW>
-        yout = [yout; zeros(block,2)]; %#ok<AGROW>
-    end
-    if refine > 1             % computed points, with refinement
-        j = oldN+1:N-1;
-        tout(j) = t + h*sigma';
-        yout(j,:) = (y(:,ones(length(j),1)) + f*h*bstar).';
-        tout(N) = tn;
-        yout(N,:) = yn.';
-    else               % computed points, no refinement
-        tout(N) = tn;
-        yout(N,:) = yn.';
-    end
-    
-    
-    % Update stop.   Maybe the stop button has been pressed.
-    
-    ud = get(dispha,'UserData');
-    stop = max(ud.stop,stop);
-    
-    if ishghandle(gstop)
-        % Are we out of the compute window?
-        yl = yout(N,:).';
-        if any([yl;-yl] - cwind < 0)
-            stop = 1;
-        end
-        
-        % If the step in the phase plane is small we assume there is a sink.
-        if (steps > minNsteps)
-            yy = yout(oldN:N,:).';
-            dyy = yy(:,1:refine) - yy(:,2:(refine+1));
-            dyy = dyy./rDY;
-            MMf = min(sqrt(sum(dyy.^2)));
-            if (MMf<=sinkeps*absh)
-                z0 = yy(:,refine+1);
-                zz = matpplane('newton',z0,dfcn);
-                zz = zz(:,1);
-                ud.zz = zz;
-                nz = norm((zz-z0)./DY);
-                if nz <= 0.01
-                    stop = 2;
-                    ud.y = z0;
-                end
-                minNsteps = minNsteps + 20;
-            end
-            
-        end
-        
-        % We look for a maximum in the randomly chosen direction.  If
-        % we find one, we compare it with previously found maxima.  If
-        % our new one is close to an old one we stop.  If not, we
-        % record the on.
-        
-        jj = oldN+1:N;
-        yy = yout(jj,:).';
-        rrr = R*yy;
-        v = [rr,rrr];
-        rr = v(:,[refine+1,refine+2]);   % Use this next time.
-        [m,ii] = max(v(1,:));
-        if( 1< min(ii) && max(ii)<refine+2 )  % If the max is in the middle.
-            kk=0;
-            while (kk<tk) && (~stop) 
-                kk = kk+1;
-                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &&...
-                        (abs(v(2,ii)-turn(2,kk))<paraeps) )
-                    z0 = yy(:,refine);
-                    ud.y = z0;
-                    zz = matpplane('newton',z0,dfcn);
-                    zz = zz(:,1);
-                    ud.zz = zz;
-                    nz = norm((zz-z0)./DY);
-                    if nz <= 0.015
-                        stop = 2;
-                    else
-                        stop = 3;
-                    end
-                end
-            end
-            tk = tk + 1;
-            if tk > size(turn,2)
-                turn = [turn,zeros(2,10)]; %#ok<AGROW>
-            end
-            turn(:,tk+1) = v(:,ii);
-        end
-    elseif (abs(tn-tfinal) < hmin)
-        stop = 6;
-    end  % if ishghandle(gstop)
-    if plotf
-        ii = oldN:N;
-        set(ph,'Xdata',yout(ii,1),'Ydata',yout(ii,2));
-        drawnow
-    end  % if plotf
-    
-    % Compute a new step size.
-    absh = max(hmin,0.8*absh / max( alpha,0.1));
-    absh = min(absh,tdir*(tfinal - tn));
-    h = absh*tdir;
-    % Advance the integration one step.
-    t = tn;
-    y = yn;
-    f(:,1) = f(:,7);                      % Already evaluated
-    % dfcn(tnew,ynew)
-    if slow
-        ttt= N/(speed*refine);
-        tt = toc;
-        while tt < ttt
-            tt = toc;
-        end
-    end
-    
-end  % while ~stop
-ud.stop = stop;
-set(dispha,'UserData',ud);
-tout = tout(1:N);
-yout = yout(1:N,:);
-if dud.notice ~= 0 & ~isempty(dud.noticeflag)
-    nstr = get(dud.notice,'string');
-    
-    switch stop
-        case 1
-            nstr{5} = [nstr{5}, ' left the computation window.'];
-        case 2
-            ystr = ['(',num2str(zz(1),2), ', ', num2str(zz(2),2),').'];
-            nstr{5} = [nstr{5}, ' --> a possible eq. pt. near ',ystr];
-        case 3
-            nstr{5} = [nstr{5}, ' --> a nearly closed orbit.'];
-        case 4
-            nstr{5} = [nstr{5}, ' was stopped by the UserData.'];
-        case 5
-            ystr = ['(',num2str(y(1),2), ', ', num2str(y(2),2),').'];
-            nstr(1:3) = nstr(2:4);
-            nstr{4} = [nstr{5},' experienced a failure at ',ystr];
-            nstr{5} = 'Problem is singular or tolerances are too large.';
-    end
-    set(dud.notice,'string',nstr);
-    drawnow
-end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function [tout,yout] = pprk4(dfcn,tspan,y0,disph)
-
-% PPRK4  is an implementation of the fourth order Runge-Kutta method.
-
-% Input the UserData data.
-
-dud = get(disph,'UserData');
-dispha = dud.axes;
-ud = get(dispha,'UserData');
-refine = dud.settings.refine;
-%tol = dud.settings.tol;
-gstop = ud.gstop;
-ssize = dud.settings.stepsize;
-plotf = ud.plot;
-DY = ud.DY;
-col = dud.color.temp;
-speed = dud.settings.speed;
-slow = (speed < 100);
-
-% Initialize the stopping criteria.
-
-%  The compute window.
-
-if ishghandle(gstop)
-    
-    % Initialize detection of closed orbits & limit cycles.
-    % Choose a random direction & initialize the search for orbit maxima in
-    % that direction.
-    
-    theta = rand*2*pi;
-    R = [cos(theta), sin(theta); -sin(theta),cos(theta)];
-    qq = R*(y0(:));
-    rr = [qq,qq];
-    z = DY(1) + sqrt(-1)*DY(2);
-    w=exp(1i*theta);
-    a1 = w*z;
-    a2 = w*(z');
-    a=max(abs(real([a1,a2])));
-    b=max(abs(imag([a1,a2])));
-    perpeps = a*0.00001;	% We want to be real
-    % close in this direction.
-    paraeps = b/100;	% We do not have to be
-    % so careful in this direction.
-    tk = 0;
-    turn = zeros(2,10);
-    
-    % The test for an equilibrium point.
-    
-    sinkeps = 0.0001;
-    
-    %  The compute window.
-    
-    cwind = ud.cwind;
-end
-
-% The stop button.
-
-stop = 0;
-ud.stop = 0;
-
-% Set the the line handle.
-
-ph = plot([y0(1),y0(1)],[y0(2),y0(2)],'color',col,...
-    'erase','none',...
-    'parent',dispha);
-ud.line = ph;
-set(dispha,'UserData',ud);
-
-% Initialize the loop.
-
-t0 = tspan(1);
-tfinal = tspan(2);
-tdir = sign(tfinal - t0);
-t = t0;
-y = y0(:);
-
-h = ssize*tdir;
-
-steps = 0;
-block = 120;
-tout = zeros(block,1);
-yout = zeros(block,2);
-N = 1;
-tout(N) = t;
-yout(N,:) = y.';
-minNsteps =20;
-
-% The main loop
-tic
-while ~stop
-    if abs(t - tfinal) < ssize
-        h = tfinal - t;
-    end
-    
-    % Compute the slope
-    s1 = feval(dfcn,t,y); s1=s1(:);
-    s2 = feval(dfcn, t + h/2, y + h*s1/2); s2=s2(:);
-    s3 = feval(dfcn, t + h/2, y + h*s2/2); s3=s3(:);
-    s4 = feval(dfcn, t + h, y + h*s3); s4=s4(:);
-    
-    t = t + h;
-    y = y + h*(s1 + 2*s2 + 2*s3 +s4)/6;
-    
-    if N >= length(tout)
-        tout = [tout;zeros(block,1)]; %#ok<AGROW>
-        yout = [yout;zeros(block,2)]; %#ok<AGROW>
-    end
-    oldN = N;
-    N = N + 1;
-    tout(N) = t;
-    yout(N,:) = y.';
-    steps = steps + 1;
-    
-    % Update stop.   Maybe the stop button has been pressed.
-    
-    ud = get(dispha,'UserData');
-    stop = max(ud.stop,stop);
-    
-    if ishghandle(gstop)
-        % Are we out of the compute window?
-        yl = yout(N,:).';
-        if any([yl;-yl] - cwind < 0)
-            stop = 1;
-        end
-        
-        % If the step in the phase plane is small we assume there is a sink.
-        if (steps > minNsteps)
-            yy = yout(N-1:N,:).';
-            dyy = yy(:,1) - yy(:,2);
-            dyy = dyy./DY;
-            MMf = sqrt(sum(dyy.^2));
-            if (MMf<=sinkeps)
-                z0 = yy(:,refine+1);
-                zz = matpplane('newton',z0,dfcn);
-                zz = zz(:,1);
-                ud.zz = zz;
-                nz = norm((zz-z0)./DY);
-                if nz <= 0.01
-                    stop = 2;
-                    ud.y = z0;
-                end
-                minNsteps = minNsteps + 20;
-            end
-        end
-        
-        % We look for a maximum in the randomly chosen direction.  If
-        % we find one, we compare it with previously found maxima.  If
-        % our new one is close to an old one we stop.  If not, we
-        % record the on.
-        
-        yy = yout(N,:).';
-        rrr = R*yy;
-        v = [rr,rrr];
-        rr = v(:,[2,3]);   % Use this next time.
-        [m,ii] = max(v(1,:));
-        if( 1< min(ii) & max(ii)<3 )  % If the max is in the middle.
-            kk=0;
-            while ( (kk<tk) & (~stop) )
-                kk = kk+1;
-                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &...
-                        (abs(v(2,ii)-turn(2,kk))<paraeps) )
-                    z0 = yy(:,refine);
-                    ud.y = z0;
-                    zz = matpplane('newton',z0,dfcn);
-                    zz = zz(:,1);
-                    ud.zz = zz;
-                    nz = norm((zz-z0)./DY);
-                    if nz <= 0.015
-                        stop = 2;
-                    else
-                        stop = 3;
-                    end
-                end
-            end
-            tk = tk + 1;
-            if tk > size(turn,2)
-                turn = [turn,zeros(2,10)]; %#ok<AGROW>
-            end
-            turn(:,tk+1) = v(:,ii);
-        end
-    end  % if ishghandle(gstop)
-    if (abs(t-tfinal) < 0.001*ssize)
-        stop = 6;
-    end
-    
-    if plotf
-        nn = (N-1):N;
-        set(ph,'Xdata',yout(nn,1),'Ydata',yout(nn,2));
-        drawnow
-    end  % if plotf
-    if slow
-        ttt= N/(speed);
-        tt = toc;
-        while tt < ttt
-            tt = toc;
-        end
-    end
-    
-end  % while ~stop
-
-ud.stop = stop;
-set(dispha,'UserData',ud);
-tout = tout(1:N);
-yout = yout(1:N,:);
-if dud.notice ~= 0 & ~isempty(dud.noticeflag)
-    nstr = get(dud.notice,'string');
-    
-    switch stop
-        case 1
-            nstr{5} = [nstr{5}, ' left the computation window.'];
-        case 2
-            ystr = ['(',num2str(zz(1),2), ', ', num2str(zz(2),2),').'];
-            nstr{5} = [nstr{5}, ' --> a possible eq. pt. near ',ystr];
-        case 3
-            nstr{5} = [nstr{5}, ' --> a nearly closed orbit.'];
-        case 4
-            nstr{5} = [nstr{5}, ' was stopped by the UserData.'];
-        case 5
-            ystr = ['(',num2str(y(1),2), ', ', num2str(y(2),2),').'];
-            nstr(1:3) = nstr(2:4);
-            nstr{4} = [nstr{5},' experienced a failure at ',ystr];
-            nstr{5} = 'Problem is singular or tolerances are too large.';
-    end
-    set(dud.notice,'string',nstr);
-end
-drawnow
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function output = ppout(t,y,flag,varargin)
-
-% PPOUT  is the output function for matpplane.
-
-%  Copywright (c)  John C. Polking, Rice University
-%  Last Modified: January 21, 2001
-
-output = 0;
-ppdisp = findobj(get(0,'child'),'flat','name','matpplane Display'); %gca;   %
-dud = get(ppdisp,'UserData');
-ppdispa = dud.axes;
-dfcn = dud.function;
-ud = get(ppdispa,'UserData');
-stop = ud.stop;
-gstop = ud.gstop;
-col = dud.color.temp;
-plotf = ud.plot;
-speed = dud.settings.speed;
-DY = ud.DY;
-slow = (speed < 100);
-
-if (nargin < 3) | (isempty(flag))
-    if stop
-        output = 1;
-        vers = version;
-        vers = str2num(vers(1:3));
-        if vers<6.5
-            feval(@ppout,t,y,'done');
-        end
-    else
-        L = length(t);
-        if ishghandle(gstop)
-            % Update stop.   Are we out of the compute window?
-            yl = y(:,L);
-            if any([yl;-yl] - ud.cwind < 0)
-                stop = 1;
-            end
-            
-            % If the derivative function is small we assume there is a
-            % sink.
-            
-            minNsteps = ud.minNsteps;
-            if (ud.i > minNsteps)
-                yy = [ud.y,y];
-                dyy = yy(:,1:L) - yy(:,2:(L+1));
-                rDY = DY(:,ones(1,L));
-                dyy = dyy./rDY;
-                MMf = min(sqrt(sum(dyy.^2)));
-                if (MMf<=ud.sinkeps*abs(t(1) - t(L)))
-                    z0 = yy(:,L+1);
-                    zz = matpplane('newton',z0,dfcn);
-                    zz = zz(:,1);
-                    ud.zz = zz;
-                    nz = norm((zz-z0)./DY);
-                    if nz <= 0.01
-                        ud.zz = zz;
-                        stop = 2;
-                    end
-                    ud.minNsteps = minNsteps + 20;
-                end
-            else
-                ud.i = ud.i + 1;
-            end
-            
-            % We look for a maximum in the randomly chosen direction.  If
-            % we find one, we compare it with previously found maxima.  If
-            % our new one is close to an old one we stop.  If not, we
-            % record the position.
-            
-            rr = ud.R*y;
-            
-            v = [ud.rr,rr];
-            ud.rr = v(:,[L+1,L+2]);
-            [m,ii] = max(v(1,:));
-            %ii = ii(1);
-            if( 1< min(ii) & max(ii)<L+2 )
-                kk=0;
-                turn = ud.turn;
-                perpeps = ud.perpeps;
-                paraeps = ud.paraeps;
-                tk = ud.tk;
-                while ( (kk<tk) & (~stop) )
-                    kk = kk+1;
-                    if ((abs(v(1,ii)-turn(1,kk))<perpeps) &...
-                            (abs(v(2,ii)-turn(2,kk))<paraeps) )
-                        z0 = y(:,L);
-                        zz = matpplane('newton',z0,dfcn);
-                        zz = zz(:,1);
-                        ud.zz = zz;
-                        nz = norm((zz-z0)./DY);
-                        if nz <= 0.002
-                            ud.zz = zz;
-                            stop = 2;
-                        else
-                            stop = 3;
-                        end
-                    end
-                end
-                ud.tk = tk + 1;
-                if tk >= size(turn,2)
-                    ud.turn = [turn,zeros(2,10)];
-                end
-                ud.turn(:,tk+1) = v(:,ii);
-            end
-        end
-        output = 0;
-        ud.stop = stop;
-        yold = ud.y;
-        ud.y = y(:,L);
-        set(ppdispa,'UserData',ud);
-        if slow
-            ttt = clock;
-            newtime = (24*ttt(4)+ttt(5))*60 + ttt(6);
-            ctime = ud.ctime;
-            N = ud.i;
-            while newtime < ctime + N/speed
-                ttt = clock;
-                newtime = (24*ttt(4)+ttt(5))*60 + ttt(6);
-            end
-        end
-        % Finally we plot the newest line segment.
-        if plotf
-            set(ud.line,'Xdata',[yold(1),y(1,:)],'Ydata',[yold(2),y(2,:)]);
-            drawnow
-        end
-    end
-    
-else
-    switch(flag)
-        case 'init'                  % ppout(tspan,y0,'init')
-            if slow
-                ttt = clock;
-                ctime = (24*ttt(4)+ttt(5))*60 + ttt(6);
-                ud.ctime = ctime;
-            end
-            ud.y = y(:);
-            ud.i = 1;
-            
-            % Set the the line handle.
-            figure(ppdisp);
-            ud.line = plot([ud.y(1),ud.y(1)],[ud.y(2),ud.y(2)],...
-                'color',col,'erase','none');
-            
-            if ishghandle(gstop)
-                % Chose a random direction & initialize the search for orbit
-                % maxima in that direction.
-                
-                theta = rand*2*pi;
-                ud.R = [cos(theta), sin(theta); -sin(theta),cos(theta)];
-                qq = ud.R*y;
-                ud.rr = [qq,qq];
-                z = ud.DY(1) + sqrt(-1)*ud.DY(2);
-                w = exp(1i*theta);
-                r = abs(z);
-                a1 = w*z;
-                a2 = w*(z');
-                a = max(abs(real([a1,a2])));
-                b = max(abs(imag([a1,a2])));
-                ud.perpeps = a*0.00001;	% We want to be real
-                % close in this direction.
-                ud.paraeps = b/100;	% We do not have to be
-                % too careful in this direction.
-                ud.sinkeps = 0.005/dud.settings.refine;
-                ud.minNsteps = 20;
-                ud.tk = 0;
-                ud.turn = zeros(2,10);
-            end
-            output = 0;
-            ud.stop = 0;
-            set(ppdispa,'UserData',ud);
-            
-        case 'done'			% ppn6(t,y,'done');
-            if dud.noticeflag
-                nstr = get(dud.notice,'string');
-                if ~isempty(y)
-                    set(ud.line,'Xdata',[ud.y(1),y(1,:)],'Ydata',[ud.y(2),y(2,:)]);
-                end
-                switch stop
-                    case 1
-                        nstr{5} = [nstr{5}, ' left the computation window.'];
-                    case 2
-                        yy = ud.zz;
-                        ystr = ['(',num2str(yy(1),2), ', ', num2str(yy(2),2),').'];
-                        nstr{5} = [nstr{5}, ' --> a possible eq. pt. near ',ystr];
-                    case 3
-                        nstr{5} = [nstr{5}, ' --> a nearly closed orbit.'];
-                    case 4
-                        nstr{5} = [nstr{5}, ' was stopped by the UserData.'];
-                end
-                set(dud.notice,'string',nstr);
-                drawnow
-                output = 1;
-            end
-    end
 end
