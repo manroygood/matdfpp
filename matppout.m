@@ -22,11 +22,11 @@ slow = (speed < 100);
 if (nargin < 3) || (isempty(flag))
     if stop
         output = 1;
-        vers = version;
-        vers = str2num(vers(1:3));
-        if vers<6.5
-            feval(@matppout,t,y,'done');
-        end
+%         vers = version;   % RG: not worrying about compatibility with 2003 software
+%         vers = str2num(vers(1:3));
+%         if vers<6.5
+%             feval(@matppout,t,y,'done');
+%         end
     else
         L = length(t);
         if ishghandle(gstop)
@@ -71,18 +71,18 @@ if (nargin < 3) || (isempty(flag))
             
             v = [ud.rr,rr];
             ud.rr = v(:,[L+1,L+2]);
-            [m,ii] = max(v(1,:));
+            [~,ii] = max(v(1,:));
             %ii = ii(1);
-            if( 1< min(ii) & max(ii)<L+2 )
+            if 1< min(ii) && max(ii)<L+2 
                 kk=0;
                 turn = ud.turn;
                 perpeps = ud.perpeps;
                 paraeps = ud.paraeps;
                 tk = ud.tk;
-                while ( (kk<tk) & (~stop) )
+                while  (kk<tk) && (~stop) 
                     kk = kk+1;
-                    if ((abs(v(1,ii)-turn(1,kk))<perpeps) &...
-                            (abs(v(2,ii)-turn(2,kk))<paraeps) )
+                    if (abs(v(1,ii)-turn(1,kk))<perpeps) &&...
+                            (abs(v(2,ii)-turn(2,kk))<paraeps) 
                         z0 = y(:,L);
                         zz = matpplane('newton',z0,dfcn);
                         zz = zz(:,1);
@@ -151,7 +151,7 @@ else
                 ud.rr = [qq,qq];
                 z = ud.DY(1) + sqrt(-1)*ud.DY(2);
                 w = exp(1i*theta);
-                r = abs(z);
+                % r = abs(z); % Unused
                 a1 = w*z;
                 a2 = w*(z');
                 a = max(abs(real([a1,a2])));

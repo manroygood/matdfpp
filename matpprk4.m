@@ -105,7 +105,6 @@ while ~stop
         tout = [tout;zeros(block,1)]; %#ok<AGROW>
         yout = [yout;zeros(block,2)]; %#ok<AGROW>
     end
-    oldN = N;
     N = N + 1;
     tout(N) = t;
     yout(N,:) = y.';
@@ -152,12 +151,12 @@ while ~stop
         rrr = R*yy;
         v = [rr,rrr];
         rr = v(:,[2,3]);   % Use this next time.
-        [m,ii] = max(v(1,:));
-        if( 1< min(ii) & max(ii)<3 )  % If the max is in the middle.
+        [~,ii] = max(v(1,:));
+        if( 1< min(ii) && max(ii)<3 )  % If the max is in the middle.
             kk=0;
-            while ( (kk<tk) & (~stop) )
+            while ( (kk<tk) && (~stop) )
                 kk = kk+1;
-                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &...
+                if ((abs(v(1,ii)-turn(1,kk))<perpeps) &&...
                         (abs(v(2,ii)-turn(2,kk))<paraeps) )
                     z0 = yy(:,refine);
                     ud.y = z0;
@@ -202,7 +201,7 @@ ud.stop = stop;
 set(dispha,'UserData',ud);
 tout = tout(1:N);
 yout = yout(1:N,:);
-if dud.notice ~= 0 & ~isempty(dud.noticeflag)
+if dud.notice ~= 0 && ~isempty(dud.noticeflag)
     nstr = get(dud.notice,'string');
     
     switch stop

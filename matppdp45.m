@@ -239,7 +239,7 @@ while ~stop
         rrr = R*yy;
         v = [rr,rrr];
         rr = v(:,[refine+1,refine+2]);   % Use this next time.
-        [m,ii] = max(v(1,:));
+        [~,ii] = max(v(1,:));
         if( 1< min(ii) && max(ii)<refine+2 )  % If the max is in the middle.
             kk=0;
             while (kk<tk) && (~stop) 
@@ -277,7 +277,7 @@ while ~stop
     % Compute a new step size.
     absh = max(hmin,0.8*absh / max( alpha,0.1));
     absh = min(absh,tdir*(tfinal - tn));
-    h = absh*tdir;
+    %h = absh*tdir; % Never used
     % Advance the integration one step.
     t = tn;
     y = yn;
@@ -296,7 +296,7 @@ ud.stop = stop;
 set(dispha,'UserData',ud);
 tout = tout(1:N);
 yout = yout(1:N,:);
-if dud.notice ~= 0 & ~isempty(dud.noticeflag)
+if dud.notice ~= 0 && ~isempty(dud.noticeflag)
     nstr = get(dud.notice,'string');
     
     switch stop

@@ -330,8 +330,6 @@ if strcmp(action,'initialize')
             color.temp = [1 0 0]; % red for temporary orbits
             color.orb = [1 1 0];  % yellow for orbits
             color.eqpt = [1 0 0];  % red for eq. pts.
-            %    color.arrows = [0 1 1]; % cyan for arrows
-            % color.arrows = [.5 .5 .9];  % purple for arrows
             color.arrows = .5*[1 1 1];  % gray for arrows
             color.narrows = .7*[1 1 1];  % gray for nullcline arrows
             color.tx = [1 1 0]; % yellow for xt plots & 3D plots
@@ -609,7 +607,7 @@ if strcmp(action,'initialize')
     dwindow = uicontrol('style','text',...
         'pos',[eqleft winbot1 disfrw-10 texth],...
         'horizon','center',...
-        'string','The display window.','visible','off');
+        'string','The display window.','visible','off'); %#ok<*NASGU>
     
     % ud.h.twind contains the handles to the text windows, and ud.h.wind
     % contains the handles to the edit windows.
@@ -801,7 +799,7 @@ if strcmp(action,'initialize')
         case 'none'
             rval1 = 0;rval2 = 0;rval3 = 0;rval4 = 4;
         otherwise
-            error(['Unknown fieldtype ',ud.o.fieldtype,'.'])
+            error('PPLANE:UnknownFieldType1',['Unknown fieldtype ',ud.o.fieldtype,'.'])
     end
     
     ud.h.rad(1) = uicontrol('style','radio',...
@@ -1008,7 +1006,7 @@ if strcmp(action,'initialize')
     set(sysmenu,'UserData',system);
     ud.h.gallery = sysmenu;
     ud.flag = 0;
-    ud.egg = (exist('EASTEREGG') ==2);
+    ud.egg = exist('EASTEREGG','file');
     
     % Record the handles in the User Data of the Set Up figure.
     
@@ -1035,7 +1033,8 @@ elseif strcmp(action,'savesyst')
             newsyst = sud.c;
             fn = newsyst.name;
             if ~isempty(fn)
-                fn(find(abs(fn)==32))='_';   % Replace spaces by underlines.
+                %fn(find(abs(fn)==32))='_';   % Replace spaces by underlines.
+                fn = strrep(fn,' ','_');
             end
             fn = [fn, '.pps'];
             comp = computer;
@@ -1051,7 +1050,7 @@ elseif strcmp(action,'savesyst')
             if fname == 0,return;end
             if ~strcmp(fname,fn)
                 ll = length(fname);
-                if (ll>4 & strcmp(fname(ll-3:ll),'.pps'))
+                if ll>4 && strcmp(fname(ll-3:ll),'.pps')
                     fn = fname;
                 else
                     fn = [fname, '.pps'];
@@ -1073,7 +1072,7 @@ elseif strcmp(action,'savesyst')
             for j=1:ll
                 names{j} = systems(j).name;
             end
-            [sel,ok] = listdlg('PromptString','Select the systems',...
+            [sel,~] = listdlg('PromptString','Select the systems',...
                 'Name','Gallery selection',...
                 'ListString',names);
             if isempty(sel)
@@ -1092,12 +1091,12 @@ elseif strcmp(action,'savesyst')
             end
             [fname,pname] = uiputfile(prompt,'Save the gallery as:');
             ll = length(fname);
-            if (ll>4 & strcmp(fname(ll-3:ll),'.ppg'))
+            if ll>4 && strcmp(fname(ll-3:ll),'.ppg')
                 fn = fname;
             else
                 fn = [fname, '.ppg'];
             end
-            newsyst.name = fn(1:ll-4);
+            newsyst.name = fn(1:ll-4); %#ok<STRNU> % Why is this here?
             sud.c.name = fn(1:ll-4);
             set(ppset,'UserData',sud);
             
@@ -1204,7 +1203,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         megall = sud.h.gallery;
         mh = get(megall,'children');
         add = findobj(megall,'tag','add system');
-        mh(find(mh == add)) = [];
+        mh(mh == add) = [];
         delete(mh);
         newsysstruct = get(megall,'UserData');
         system = sud.system;
@@ -1251,12 +1250,12 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         fid = fopen([pname fname],'r');
         sline = fgetl(fid);
         if strcmp(sline,'%% PPLANE file %%')
-            date = 'new';
+            the_date = 'new';
         else
-            date = 'old';
+            the_date = 'old';
         end
         newsysts = {};
-        switch date
+        switch the_date
             case 'old'
                 newsysts{1} = sline;
                 kk = 1;
@@ -1270,7 +1269,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         fclose(fid);
         newsysts = newsysts(1:kk);
         false = 0;
-        switch date
+        switch the_date
             case 'old'
                 if mod(kk,19)
                     false = 1;
@@ -1292,7 +1291,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
             delete(waith);
             return
         end %if false
-        switch date
+        switch the_date
             case 'old'
                 x = 19/(kk+38);
                 xp = [xp(2),x,x,xp(2)];
@@ -1316,10 +1315,10 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
                         newsystemp{12},...
                         newsystemp{13},'',''};
                     newsyst.fieldtype = newsystemp{14};
-                    newsyst.npts = str2num(newsystemp{15});
+                    newsyst.npts = str2double(newsystemp{15});
                     wind = newsystemp(16:19);
-                    newsyst.wind = [str2num(wind{1}),str2num(wind{2}),...
-                        str2num(wind{3}),str2num(wind{4})];
+                    newsyst.wind = [str2double(wind{1}),str2double(wind{2}),...
+                        str2double(wind{3}),str2double(wind{4})];
                     newsysstruct(j+1) = newsyst; %#ok<AGROW>
                 end  % for j = 0:(nnn-1)
             case 'new'
@@ -1333,7 +1332,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
                     for k = 2:11
                         eval(newsysts{(j-1)*11+k});
                     end
-                    newsysstruct(j) = H; %#ok<AGROW>
+                    newsysstruct(j) = H; %#ok<NODEF,AGROW>  % Somehow h is defined
                 end
                 
         end %switch date
@@ -1348,7 +1347,8 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         drawnow;
         newsyst = newsysstruct(j);
         sname = newsyst.name;
-        sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
+        %sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
+        sname = strrep(sname,'_','');
         newsyst.name = sname;
         ignore = matpplane('addgall',newsyst);
         if ignore == -1
@@ -1425,13 +1425,13 @@ elseif strcmp(action,'addgall')
     systems = get(sud.h.gallery,'UserData');
     ll = length(systems);
     kk = 1;
-    while ((kk<=ll) & (~strcmp(sname,systems(kk).name)))
+    while (kk<=ll) && (~strcmp(sname,systems(kk).name))
         kk = kk + 1;
     end
     nameflag = (kk<=ll);
     ssyst = rmfield(syst,'name');
     kk = 1;
-    while ((kk<=ll) & (~isequal(ssyst,rmfield(systems(kk),'name'))))
+    while (kk<=ll) && (~isequal(ssyst,rmfield(systems(kk),'name')))
         kk = kk + 1;
     end
     systflag = 2*(kk<=ll);
@@ -1505,8 +1505,8 @@ elseif strcmp(action,'system')
     ppset = findobj('name','matpplane Setup');
     ud = get(ppset,'UserData');
     kk = input1;
-    if isstr(kk)
-        kk = str2num(input1);
+    if ischar(kk)
+        kk = str2double(input1);
     end
     system = get(ud.h.gallery,'UserData');
     syst = system(kk);
@@ -1555,7 +1555,7 @@ elseif strcmp(action,'system')
         case 'none'
             rval = [0 0 0 4];
         otherwise
-            error(['Unknown fieldtype ',ud.o.fieldtype,'.'])
+            error('PPLANE:UnknownFieldType2',['Unknown fieldtype ',ud.o.fieldtype,'.'])
     end
     
     for i=1:4
@@ -1611,7 +1611,7 @@ elseif strcmp(action,'revert')
         case 'none'
             rval(1) = 0;rval(2) = 0;rval(3) = 3;
         otherwise
-            error(['Unknown fieldtype ',ud.o.fieldtype,'.'])
+            error('PPLANE:UnknownFieldType1',['Unknown fieldtype ',ud.o.fieldtype,'.'])
     end
     
     for i=1:3
@@ -1732,7 +1732,7 @@ elseif strcmp(action,'proceed')
         dud.syst.fieldtype = Arrflag;
         set(ppdisp,'UserData',dud);
         
-        if ( (NumbFPts ~= dud.syst.npts) | (any(WINvect ~= dud.syst.wind) ) )
+        if ( (NumbFPts ~= dud.syst.npts) || (any(WINvect ~= dud.syst.wind) ) )
             dud.syst.wind = WINvect;
             dud.syst.npts = NumbFPts;
             set(ppdisp,'UserData',dud);
@@ -1757,7 +1757,8 @@ elseif strcmp(action,'proceed')
         % blanks.  Also remove the periods inserted by UserDatas attempting to
         % make the function array smart.
         
-        xderivstr(find(abs(xderivstr)==32))=[];
+        %xderivstr(find(abs(xderivstr)==32))=[];
+        xderivstr = strrep(xderivstr,' ','');
         l=length(xderivstr);
         for  k = fliplr(strfind(xderivstr,'.'))
             if (find('*/^' == xderivstr(k+1)))
@@ -1766,7 +1767,8 @@ elseif strcmp(action,'proceed')
             l=l-1;
         end
         
-        yderivstr(find(abs(yderivstr)==32))=[];
+        %yderivstr(find(abs(yderivstr)==32))=[];
+        yderivstr = strrep(yderivstr,' ','');
         l=length(yderivstr);
         for k = fliplr(strfind(yderivstr,'.'))
             if (find('*/^' == yderivstr(k+1)))
@@ -1779,8 +1781,9 @@ elseif strcmp(action,'proceed')
             pval = parav{kk};
             if ~isempty(pval)
                 pabs = abs(pval);
-                kkk = find(pabs==32);
-                pval(kkk) = [];
+                %kkk = find(pabs==32);
+                %pval(kkk) = [];
+                pval = strrep(pval,' ','');
                 l = length(pval);
                 for k = fliplr(strfind(pval,'.'))
                     if (find('*/^' == pval(k+1)))
@@ -1800,7 +1803,8 @@ elseif strcmp(action,'proceed')
         txderstr(kxder)=' '*ones(size(kxder));
         txderstr = strrep(txderstr,'-',' - ');
         txderstr = strrep(txderstr,'+',' + ');
-        if (abs(txderstr(1)) == 32)
+%        if (abs(txderstr(1)) == 32)
+        if strcmp(txderstr(1),' ')
             txderstr = txderstr(2:length(txderstr));
         end
         
@@ -1808,14 +1812,15 @@ elseif strcmp(action,'proceed')
         tyderstr(kxder)=' '*ones(size(kxder));
         tyderstr = strrep(tyderstr,'-',' - ');
         tyderstr = strrep(tyderstr,'+',' + ');
-        if (abs(tyderstr(1)) == 32)
+        if strcmp(tyderstr(1),' ')
+        %if (abs(tyderstr(1)) == 32)
             tyderstr = tyderstr(2:length(tyderstr));
         end
         
         tstr1 = [Xname,' '' = ', txderstr];
         tstr2 = [Yname,' '' = ', tyderstr];
-        tstr = str2mat(tstr1,tstr2);
-        dud.tstr = tstr;
+        tstr = char(tstr1,tstr2);
+        dud.tstr = tstr; %#ok<STRNU>  % This seems to be needed
         pstr1 = {' ';' '};
         pstr2 = {' ';' '};
         pstr3 = {' ';' '};
@@ -1824,11 +1829,13 @@ elseif strcmp(action,'proceed')
         for kk = 1:6
             if ~isempty(parav{kk})
                 tpstr = parav{kk};
-                kxder = find(abs(tpstr)==42);  % Get rid of *s
+                %kxder = find(abs(tpstr)==42);  % Get rid of *s
+                kxder = strfind(tpstr,'*');
                 tpstr(kxder)=' '*ones(size(kxder));
                 tpstr = strrep(tpstr,'-',' - ');  % Extra spaces
                 tpstr = strrep(tpstr,'+',' + ');
-                if (abs(tpstr(1)) == 32)  % Get rid of starting space
+                %if (abs(tpstr(1)) == 32)  % Get rid of starting space
+                if strcmp(tpstr(1),' ')    
                     tpstr = tpstr(2:length(tpstr));
                 end
                 pstring{kk} = [pname{kk},' = ', tpstr];
@@ -1850,10 +1857,14 @@ elseif strcmp(action,'proceed')
         % labels.
         txname = Xname;
         tyname = Yname;
-        xderivstr(find(abs(xderivstr)==92))=[];
-        yderivstr(find(abs(yderivstr)==92))=[];
-        Xname(find(abs(Xname)==92))=[];
-        Yname(find(abs(Yname)==92))=[];
+%         xderivstr(find(abs(xderivstr)==92))=[];
+%         yderivstr(find(abs(yderivstr)==92))=[];
+%         Xname(find(abs(Xname)==92))=[];
+%         Yname(find(abs(Yname)==92))=[];
+         xderivstr = strrep(xderivstr,'\',[]);
+         yderivstr = strrep(yderivstr,'\',[]);
+         Xname = strrep(Xname,'\',[]);
+         Yname = strrep(Yname,'\',[]);
         
         eval([Xname,'=XxXxXx;'],'err = 1;');
         if err
@@ -1887,12 +1898,13 @@ elseif strcmp(action,'proceed')
                 if isempty(pv)
                     perr = [perr, sud.h.pval(kk)]; %#ok<AGROW>
                 else
-                    if isempty(str2num(pv)) % This is an expression.
-                        tpv = pv;
-                        tpv(find(abs(tpv)==92))=[];
+                    if isempty(str2double(pv)) % This is an expression.
+                        %tpv = pv;
+                        %tpv(find(abs(tpv)==92))=[];
+                        tpv=strrep(pv,'\','');
                         err = 0; pval = '';
                         eval(['pval = ',tpv,';'],'err=1;');
-                        if (err | isempty(pval))
+                        if err || isempty(pval)
                             errmsg = ['The expression for ',pn,' is not valid.'];
                             fprintf('\a')
                             errordlg(errmsg,'matpplane error','on');
@@ -1902,7 +1914,7 @@ elseif strcmp(action,'proceed')
                     end
                     xxderivstr = matpplane('paraeval',pn,pv,xderivstr);
                     yyderivstr = matpplane('paraeval',pn,pv,yderivstr);
-                    if (~strcmp(xxderivstr,xderivstr) | ~strcmp(yyderivstr,yderivstr) )
+                    if ~strcmp(xxderivstr,xderivstr) || ~strcmp(yyderivstr,yderivstr) 
                         pflag(kk) = 1;
                         xderivstr = xxderivstr;
                         yderivstr = yyderivstr;
@@ -1914,13 +1926,13 @@ elseif strcmp(action,'proceed')
         % We have to make the derivative strings array smart.
         
         l = length(xderivstr);
-        for (k=fliplr(find((xderivstr=='^')|(xderivstr=='*')|(xderivstr=='/'))))
+        for k=fliplr(find((xderivstr=='^')|(xderivstr=='*')|(xderivstr=='/')))
             xderivstr = [xderivstr(1:k-1) '.' xderivstr(k:l)];
             l = l+1;
         end
         
         l = length(yderivstr);
-        for (k=fliplr(find((yderivstr=='^')|(yderivstr=='*')|(yderivstr=='/'))))
+        for k=fliplr(find((yderivstr=='^')|(yderivstr=='*')|(yderivstr=='/')))
             yderivstr = [yderivstr(1:k-1) '.' yderivstr(k:l)];
             l = l+1;
         end
@@ -1929,7 +1941,7 @@ elseif strcmp(action,'proceed')
         
         err = 0;res = 1;
         eval(['res = ',xderivstr, ';'],'err = 1;');
-        if err | isempty(res)
+        if err || isempty(res)
             if isempty(perr)
                 errmsg = ['The first differential equation ',...
                     'is not entered correctly.'];
@@ -1938,7 +1950,7 @@ elseif strcmp(action,'proceed')
                     'does not evaluate correctly.'];
                 errstr2 = ['At least one of the parameter values is not ',...
                     'a number.'];
-                errmsg = str2mat(errstr1,errstr2);
+                errmsg = char(errstr1,errstr2);
                 
                 set(perr,'string','?');
             end
@@ -1951,7 +1963,7 @@ elseif strcmp(action,'proceed')
         
         err = 0;res = 1;
         eval(['res = ',yderivstr, ';'],'err = 1;');
-        if err | isempty(res)
+        if err || isempty(res)
             if isempty(perr)
                 errmsg = ['The second differential equation ',...
                     'is not entered correctly.'];
@@ -1960,7 +1972,7 @@ elseif strcmp(action,'proceed')
                     'does not evaluate correctly.'];
                 errstr2 = ['At least one of the parameter values is not ',...
                     'a number.'];
-                errmsg = str2mat(errstr1,errstr2);
+                errmsg = char(errstr1,errstr2);
                 set(perr,'string','?');
             end
             sud.flag = 0;
@@ -2010,7 +2022,7 @@ elseif strcmp(action,'proceed')
             dud.syst = sud.c;
             dud.settings = sud.settings;
             dfcnn = dud.function;
-            if  exist(dfcnn)==2
+            if  exist(dfcnn,'file')
                 delete([tempdir,dfcnn,'.m']);
             end
             xmstr = [txname,' vs. t'];
@@ -2654,7 +2666,7 @@ elseif strcmp(action,'proceed')
         set(findobj('tag','zbmenu'),'enable','off');
         tstr1 = [txname,' '' = ', txderstr];
         tstr2 = [tyname,' '' = ', tyderstr];
-        tstr = str2mat(tstr1,tstr2);
+        tstr = char(tstr1,tstr2);
         dud.tstr = tstr;
         
         
@@ -3055,7 +3067,7 @@ elseif strcmp(action,'linear')
     pos(1) = min(.8, p1 - ext(3)-0.02);
     set(dud.title.p2,'pos',pos);
     
-    if (~strcmp(dfcn,'') && exist(dfcn)==2)
+    if ~strcmp(dfcn,'') && exist(dfcn,'file')
         delete([tempdir,dfcn,'.m']);
     end
     tee = clock;
@@ -3203,7 +3215,7 @@ elseif strcmp(action,'dirfield')
     % Calculate the line and vector fields.
     
     Xx=Xx(:);Yy=Yy(:);
-    Ww = zeros(size(Xx));
+    %Ww = zeros(size(Xx)); % Unused preallocated variable
     Ww = feval(dfcn,0,[Xx';Yy']);
     Vv = Ww(1,:) + Ww(2,:)*sqrt(-1);
     Vv = Vv.';
@@ -3220,7 +3232,7 @@ elseif strcmp(action,'dirfield')
     ww = (zzz == 0);
     scale = scale + ww;
     aa1 = 0.3*arrow*(zzz./scale)+ones(size(arrow))*(mgrid.');
-    [r,c] = size(aa1);
+    [~,c] = size(aa1);
     aa1=[aa1;NaN*ones(1,c)];
     aa1=aa1(:);
     
@@ -3228,7 +3240,7 @@ elseif strcmp(action,'dirfield')
     zz=sign(zz).*((abs(zz)).^(1/3));
     scale = 0.9*sc./max(max(abs(zz)));
     aa2 = scale*arrow*zz +ones(size(arrow))*(mgrid.');
-    [r,c] = size(aa2);
+    [~,c] = size(aa2);
     aa2=[aa2;NaN*ones(1,c)];
     aa2=aa2(:);
     axes(ppdispa);
@@ -3253,7 +3265,7 @@ elseif strcmp(action,'dirfield')
     % Calculate the line and vector fields.
     
     Xxx=Xx(:);Yyy=Yy(:);
-    Ww = zeros(size(Xxx));
+    %Ww = zeros(size(Xxx)); %Unused preallocated variable
     Ww = feval(dfcn,0,[Xxx';Yyy']);
     DX = Ww(1,:)';
     DY = Ww(2,:)';
@@ -3271,26 +3283,26 @@ elseif strcmp(action,'dirfield')
     DY = reshape(DY,N+2*k+1,N+2*k+1);
     DR = reshape(DR,N+2*k+1,N+2*k+1);
     DTheta = reshape(DTheta,N+2*k+1,N+2*k+1);
-    if minx < 0 & 0 < maxx
-        [Cx,hx] = contour(Xx,Yy,DX,[0,0],'--');
+    if minx < 0 && 0 < maxx
+        [~,hx] = contour(Xx,Yy,DX,[0,0],'--');
         set(hx,'visible','off','color',color.xcline,'linestyle','--');
     else
         hx = zeros(0,1);
     end
-    if miny < 0 & 0 < maxy
-        [Cy,hy] = contour(Xx,Yy,DY,[0,0],'--');
+    if miny < 0 && 0 < maxy
+        [~,hy] = contour(Xx,Yy,DY,[0,0],'--');
         set(hy,'visible','off','color',color.ycline,'linestyle','--');
     else
         hy = zeros(0,1);
     end
-    if minr < 0 & 0 < maxr
-        [Cr,hr] = contour(Xx,Yy,DR,[0,0],'--');
+    if minr < 0 && 0 < maxr
+        [~,hr] = contour(Xx,Yy,DR,[0,0],'--');
         set(hr,'visible','off','color',color.xcline,'linestyle','--');
     else
         hr = zeros(0,1);
     end
-    if minth < 0 & 0 < maxth
-        [Cth,hth] = contour(Xx,Yy,DTheta,[0,0],'--');
+    if minth < 0 && 0 < maxth
+        [~,hth] = contour(Xx,Yy,DTheta,[0,0],'--');
         set(hth,'visible','off','color',color.ycline,'linestyle','--');
     else
         hth = zeros(0,1);
@@ -3329,7 +3341,7 @@ elseif strcmp(action,'dirfield')
     Yyy = Yyy(:);
     DXx = DXx(:);
     DYy = DYy(:);
-    if ~exist('both')
+    if ~exist('both')   %#ok<EXIST> % I don't think 'both' ever exists so this always gets called
         Xxx = zeros(0,1);
         Yyy = zeros(0,1);
         DXx = zeros(0,1);
@@ -3383,7 +3395,7 @@ elseif strcmp(action,'dirfield')
     Vv = sign(Vv);       %.*((abs(Vv)).^(1/3));
     sc = (N/20)*min(deltax,deltay);
     aa3 = sc*arrow*(Vv.') +ones(size(arrow))*(mgrid.');
-    [r,c] = size(aa3);
+    [~,c] = size(aa3);
     aa3 = [aa3;NaN*ones(1,c)];
     aa3=aa3(:);
     arrh3 = plot(real(aa3),imag(aa3),'color',color.narrows,'visible','off');
@@ -3562,7 +3574,7 @@ elseif strcmp(action,'solution')
     ssize = settings.stepsize;
     tol = settings.tol;
     ud = get(dud.axes,'UserData');
-    %  rtol = tol;
+    rtol = tol;
     atol = tol*ud.DY*1e-4';
     
     
@@ -3602,34 +3614,34 @@ elseif strcmp(action,'solution')
         case 'ode45'
             solh = @ode45;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode23'
             solh = @ode23;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode113'
             solh = @ode113;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode15s'
             solh = @ode15s;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode23s'
             solh = @ode23s;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode23t'
             solh = @ode23t;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
         case 'ode23tb'
             solh = @ode23tb;
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
-                'RelTol',tol,'Abstol',atol);
+                'RelTol',rtol,'Abstol',atol);
     end
     
-    exist(dfcn);
+    %exist(dfcn);  % does nothing
     dfh = str2func(dfcn);
     cflag = 0;
     
@@ -3715,7 +3727,7 @@ elseif strcmp(action,'kcompute')
     ystr = get(kh.yval,'string');
     pnameh = sud.h.pname;
     pvalh = sud.h.pval;
-    pflag = zeros(1,4);
+    pflag = zeros(1,4); %#ok<PREALL> % Why is this here?
     perr = [];
     for kk = 1:6
         pn = char(get(pnameh(kk),'string'));
@@ -3729,14 +3741,14 @@ elseif strcmp(action,'kcompute')
             end
         end
     end
-    xvalue = str2num(xstr);
-    yvalue = str2num(ystr);
+    xvalue = str2double(xstr);
+    yvalue = str2double(ystr);
     
     
     if get(kh.spec,'value')
-        tzero = str2num(get(kh.tval,'string'));
-        t0 = str2num(get(kh.t0,'string'));
-        tf = str2num(get(kh.tf,'string'));
+        tzero = str2double(get(kh.tval,'string'));
+        t0 = str2double(get(kh.t0,'string'));
+        tf = str2double(get(kh.tf,'string'));
         initpt = [xvalue,yvalue,tzero,t0,tf];
         str1 = 'Values must be entered for all of the entries.';
         if (length(initpt) ~= 5)
@@ -3746,7 +3758,7 @@ elseif strcmp(action,'kcompute')
             warndlg({'The final time of the computation interval';...
                 'must be smaller than the initial time.'},'Illegal input');
             compute = 0;
-        elseif (tzero < t0) | (tzero > tf)
+        elseif (tzero < t0) || (tzero > tf)
             str2 = 'The initial time must be in the computation interval.';
             warndlg(str2,'Illegal input');
             compute = 0;
@@ -3755,6 +3767,7 @@ elseif strcmp(action,'kcompute')
         set(ppdispa,'UserData',aud);
     else
         initpt = [xvalue,yvalue];
+        str1 = 'Values must be entered for all of the entries.';
         if (length(initpt) ~= 2)
             warndlg({str1},'Illegal input');
             compute = 0;
@@ -3988,7 +4001,7 @@ elseif strcmp(action,'eqpt')
     A = B+C*sqrt(-1);
     z = z(:,1);
     
-    if (~flag | norm((z-z0')./DY) > 1/5)
+    if ~flag | norm((z-z0')./DY) > 1/5   %#ok<OR2> % flag not scalar
         nstr(1:4) = nstr(2:5);
         nstr{5} = ['There is not an equilibrium point near (',...
             num2str(z0(1)),', ', num2str(z0(2)), ').  Ready'];
@@ -4179,7 +4192,7 @@ elseif strcmp(action,'stunst')
     set(dud.notice,'string',nstr);
     %    z0 = ppginput(1);
     z0 = ginput(1);
-    z = zeros(2,1);
+    %z = zeros(2,1); % unused preallocated variable
     z = matpplane('newton',z0,dfcn);
     
     flag = z(:,4);
@@ -4188,7 +4201,7 @@ elseif strcmp(action,'stunst')
     A(k) = zeros(size(k));
     z = z(:,1);
     
-    if (~flag | norm((z-z0')./DY)> 1/5)
+    if ~flag | norm((z-z0')./DY)> 1/5 %#ok<OR2> % flag not scalar. can't use ||
         nstr(1:4) = nstr(2:5);
         nstr{5} = ['There is not an equilibrium point near (',...
             num2str(z0(1),2),', ', num2str(z0(2),2), ').'];
@@ -4237,7 +4250,8 @@ elseif strcmp(action,'stunst')
     offset = norm(DY)/1000;
     lm=abs(L);
     lm=lm/max(lm);
-    lm = (max([lm,0.2*ones(size(lm))]'))';
+    %lm = max([lm,0.2*ones(size(lm))]'))'; % Just wants the max in the 2nd dimension
+    lm = max([lm,0.2*ones(size(lm))],[],2);
     offs = offset./lm;
     ud = get(dud.axes,'UserData');
     atol = tol*ud.DY*1e-4';
@@ -4291,7 +4305,7 @@ elseif strcmp(action,'stunst')
             opt = odeset('OutputFcn',@matppout,'Refine',refine,...
                 'RelTol',tol,'Abstol',atol);
     end
-    exist(dfcn);
+    %exist(dfcn);  % Does nothing
     dfh = str2func(dfcn);
     cflag = 0;
     [tp,Xp] = feval(solh,dfh,int,w,opt);
@@ -4597,7 +4611,7 @@ elseif strcmp(action,'newton')
     zInit = input1;
     
     zNext=zInit(:);
-    functionf = zeros(2,1);
+    % functionf = zeros(2,1); % Unused preallocated variable
     functionf=feval(dfcn,0,zNext);
     functionf=functionf(:);
     
@@ -4954,14 +4968,12 @@ elseif strcmp(action,'delete')
         ics = dud.ics;
         nstr(1:4) = nstr(2:5);
         if strcmp(typ,'line')
-            eqk = find(eph == objh);
+            eqk = find(eph == objh,1);
             if ~isempty(eqk)  % An equilibrium point.
-                if ~isempty(eqk)
-                    if size(eqpt,1) == 1
-                        dud.eqpts = [];
-                    else
-                        dud.eqpts = [eqpt(1:eqk-1,:);eqpt(eqk+1:size(eqpt,1),:)];
-                    end
+                if size(eqpt,1) == 1
+                    dud.eqpts = [];
+                else
+                    dud.eqpts = [eqpt(1:eqk-1,:);eqpt(eqk+1:size(eqpt,1),:)];
                 end
             end
             dud.ics = setdiff(dud.ics,objh);
@@ -4971,7 +4983,7 @@ elseif strcmp(action,'delete')
             delete(objh);
             nstr{5} = 'Ready.';
             
-        elseif strcmp(typ,'text') & ~ismember(objh,hh)
+        elseif strcmp(typ,'text') && ~ismember(objh,hh)
             dud.contours = setdiff(dud.contours,objh)';
             delete(objh);
             nstr{5} = 'Ready.';
@@ -4983,8 +4995,8 @@ elseif strcmp(action,'delete')
         set(notice,'string',nstr);
     else     % Linearization window
         if strcmp(typ,'line')
-            eqk = find(dud.ephand == objh);
-            if isempty(eqk)  % Npt an equilibrium point.
+            eqk = find(dud.ephand == objh,1);
+            if isempty(eqk)  % Not an equilibrium point.
                 dud.solhand = setdiff(dud.solhand,objh)';
                 dud.ics = setdiff(dud.ics,objh);
                 delete(objh);
@@ -5030,7 +5042,7 @@ elseif strcmp(action,'plotxy')  % Start a graph
     
     if (lll)  % Are there any orbits?
         kk=0;
-        while (kk < lll) & (exsol == 0)
+        while (kk < lll) && (exsol == 0)
             kk = kk + 1;
             xd = get(handles(kk),'xdata');
             if (length(xd) > 7)
@@ -5230,7 +5242,7 @@ elseif strcmp(action,'plotxyfig')  % Build the graph figure.
         'xlim',[0,1],'ylim',[0,1],...
         'clipping','on','visible','off');
     
-    set(leg,'UserData',str2mat(xstring,ystring));
+    set(leg,'UserData',char(xstring,ystring));
     axes(leg);
     xh = text(0,0,xstring,'units','norm','visible','off',...
         'parent',leg);
@@ -5746,7 +5758,7 @@ elseif strcmp (action,'zoomback')
         winstr{j} = [' ',a,' < ',Xname,' < ',b,'   &   ',c,' < ', Yname,' < ',d];
     end
     
-    [sel,ok] = listdlg('liststring',winstr,...
+    [sel,~] = listdlg('liststring',winstr,...
         'selectionmode','single',...
         'listsize',[400,200],...
         'initialvalue',wch,...
@@ -5800,7 +5812,7 @@ elseif strcmp(action,'figdefault')
         case 'black'
             % if isunix | isvms, gamma = 0.5; else gamma = 0.0; end
             whitebg(fig,[0,0,0])
-            if isunix | isvms
+            if isunix || isvms
                 fc = [.35 .35 .35];
             else
                 fc = [.2 .2 .2];
@@ -5954,10 +5966,12 @@ elseif strcmp(action,'level')
     ppdisp = gcf;
     dud = get(ppdisp,'UserData');
     lfcn = dud.level;
-    Xname = dud.syst.xvar;
-    Yname = dud.syst.yvar;
-    Xname(find(abs(Xname)==92))=[];  % Remove \s if any.
-    Yname(find(abs(Yname)==92))=[];
+%     Xname = dud.syst.xvar;
+%     Yname = dud.syst.yvar;
+%     Xname(find(abs(Xname)==92))=[];  % Remove \s if any.
+%     Yname(find(abs(Yname)==92))=[];
+    Xname = strrep(dud.syst.xvar,'\','');
+    Yname = strrep(dud.syst.yvar,'\','');
     pplevel = findobj('name','matpplane Level sets');
     if ~isempty(pplevel)
         delete(pplevel)
@@ -6119,37 +6133,43 @@ elseif strcmp(action,'levcomp')
     pvalh = sud.h.pval;
     pflag = zeros(1,4);
     perr = [];
-    lfcn(find(abs(lfcn)==32))=[];
+    %lfcn(find(abs(lfcn)==32))=[];
+    lfcn = strrep(lfcn,' ','');
     for kk = 1:4
         pn = get(pnameh(kk),'string');
         pv = get(pvalh(kk),'string');
         if ~isempty(pn)
-            pn(find(abs(pn)==92))=[];
+            %pn(find(abs(pn)==92))=[];
+            pn = strrep(pn,'\','');
             if isempty(pv)
                 perr = pvalh(kk);
             else
-                pv(find(abs(pv)==32))=[];
+                pv = strrep(pv,' ','');
+                %pv(find(abs(pv)==32))=[];
                 lfcn = matpplane('paraeval',pn,pv,lfcn);
             end
         end
     end
     l = length(lfcn);
-    for (k=fliplr(find((lfcn=='^')|(lfcn=='*')|(lfcn=='/'))))
+    for k=fliplr(find((lfcn=='^')|(lfcn=='*')|(lfcn=='/')))
         lfcn = [lfcn(1:k-1) '.' lfcn(k:l)];
         l = l+1;
     end
     WINvect = dud.syst.wind;
     XxXxXx = WINvect(1) + rand*(WINvect(2)-WINvect(1));
     YyYyYy = WINvect(3) + rand*(WINvect(4)-WINvect(3));
-    Xname = dud.syst.xvar;
-    Yname = dud.syst.yvar;
-    Xname(find(abs(Xname)==92))=[];  % Remove \s if any.
-    Yname(find(abs(Yname)==92))=[];
+%     Xname = dud.syst.xvar;
+%     Yname = dud.syst.yvar;
+%     Xname(find(abs(Xname)==92))=[];  % Remove \s if any.
+%     Yname(find(abs(Yname)==92))=[];
+    Xname = strrep(dud.syst.xvar,'\','');
+    Yname = strrep(dud.syst.yvar,'\','');
+
     err = 0;res = 1;
     eval([Xname,'=XxXxXx;'],'err = 1;');
     eval([Yname,'=YyYyYy;'],'err = 1;');
     eval(['res = ',lfcn, ';'],'err = 1;');
-    if err | isempty(res)
+    if err || isempty(res)
         errmsg = 'The function does not evaluate correctly.';
         fprintf('\a')
         errordlg(errmsg,'PPLANE error','on');
@@ -6178,7 +6198,7 @@ elseif strcmp(action,'levcomp')
     switch KK
         case 1  % vector input
             rhs = get(ud.rhs,'string');
-            rhs = str2num(rhs);
+            rhs = str2num(rhs); %#ok<ST2NM> %Takes vector data. can't be made str2double
             
         case 2  % mouse input
             figure(ppdisp);
@@ -6193,11 +6213,13 @@ elseif strcmp(action,'levcomp')
             rhs = 10^(LL-KKK)*rhs;
             
         case 3  % matpplane input
-            Www = Ww;
-            kkk = find(isnan(Www));
-            Www(kkk) = [];
-            kkk = find(imag(Www));
-            Www(kkk) = [];
+%             Www = Ww;
+%             kkk = find(isnan(Www));
+%             Www(kkk) = [];
+%             kkk = find(imag(Www));
+%             Www(kkk) = [];
+            Www = Ww(imag(Ww)==0);
+            Www = rmmissing(Ww);
             MM = max(Www);
             mm = min(Www);
             LL = ceil(log10(MM-mm));
@@ -6227,7 +6249,7 @@ elseif strcmp(action,'levcomp')
         'rotation',0);
     set(hcont,'visible','on',...
         'color',dud.color.level,...
-        'linestyle',':');
+        'linestyle','-.');
     dud.contours = [dud.contours ;hcont;hlabel];
     set(ppdisp,'UserData',dud);
     
@@ -6279,7 +6301,7 @@ elseif strcmp(action,'closefcn')
     
     fig = gcf;
     name = get(fig,'name');
-    if strcmp(name,'matpplane Setup') | strcmp(name,'matpplane Display')
+    if strcmp(name,'matpplane Setup') || strcmp(name,'matpplane Display')
         quest = ['Closing this window will cause all matpplane ',...
             'windows to close, and matpplane will stop.  ',...
             'Do you want to quit matpplane?'];
@@ -6290,7 +6312,7 @@ elseif strcmp(action,'closefcn')
     elseif strcmp(name,'matpplane Linearization')
         dud = get(fig,'UserData');
         fcn = dud.function;
-        if (exist(fcn)==2)
+        if exist(fcn,'file')
             delete([fcn,'.m']);
         end
         delete(findobj('label',name));
@@ -6440,7 +6462,7 @@ elseif strcmp(action,'export')
     
 elseif strcmp(action,'cdisp')
     
-    [ppcbo,ppdisp] = gcbo;
+    [~,ppdisp] = gcbo;
     dud = get(ppdisp,'UserData');
     cp = get(ppdisp,'currentpoint');
     fpos = get(ppdisp,'pos');
@@ -6517,7 +6539,7 @@ elseif strcmp(action,'periodic')
         case 'ode23tb'
             solh = @ode23tb;
     end
-    exist(dfcn);
+    %exist(dfcn);  % Does nothing
     dfh = str2func(dfcn);
     dud.noticeflag = 0;   % Notices only from here.
     set(ppdisp,'UserData',dud);
@@ -6563,14 +6585,14 @@ elseif strcmp(action,'periodic')
             kk = find(rr < 0.01);
             LL = length(kk);
             kmax = max(kk);
-            kkk = max(kk(find(kk<kmax-30)));
+            kkk = max(kk(kk<kmax-30));
             T = tp(kmax) - tp(kkk);
             aud.gstop = 0;
             set(ppdispa,'UserData',aud);
             kkk = 0;
             NN = 1;
             dz0 = feval(dfh,0,z0);
-            while abs(NN)>0.0001*abs(T) & kkk < 10
+            while abs(NN)>0.0001*abs(T) && kkk < 10
                 [tt,yy] = feval(solh,dfh,[0,T],z0,opt);
                 yy = yy(length(tt),:);
                 dyy = feval(dfh,0,yy');
@@ -6633,14 +6655,14 @@ elseif strcmp(action,'periodic')
             kk = find(rr < 0.01);
             LL = length(kk);
             kmax = max(kk);
-            kkk = max(kk(find(kk<kmax-30)));
+            kkk = max(kk(kk<kmax-30));
             T = tp(kmax) - tp(kkk);
             aud.gstop = 0;
             set(ppdispa,'UserData',aud);
             kkk = 0;
             NN = 1;
             dz0 = feval(dfh,0,z0);
-            while abs(NN)>0.0001*abs(T) & kkk < 10
+            while abs(NN)>0.0001*abs(T) && kkk < 10
                 [tt,yy] = feval(solh,dfh,[0,T],z0,opt);
                 yy = yy(length(tt),:);
                 dyy = feval(dfh,0,yy');

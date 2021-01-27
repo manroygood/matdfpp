@@ -81,7 +81,7 @@ if strcmp(action,'initialize')
         fn = oldfiles(k).name;
         fid = fopen(fn,'r');
         if fid ~= -1
-            ll = fgetl(fid);
+            ll = fgetl(fid); %#ok<*NASGU>
             ll = fgetl(fid);
             ll = fgetl(fid);
             fclose(fid);
@@ -156,7 +156,7 @@ if strcmp(action,'initialize')
                         solvhandle = @dfrk4;
                         
                     otherwise
-                        error('Undefined solver.');
+                        error('DFIELD:UndefinedSolver','Undefined solver.');
                 end
             end
         end
@@ -843,12 +843,14 @@ elseif strcmp(action,'proceed')
         
         % First remove the blanks.
         
-        derivstr(find(abs(derivstr)==32))=[];
+        %derivstr(find(abs(derivstr)==32))=[];
+        derivstr = strrep(derivstr,' ','');
         
         for kk = 1:4
             paraval = parav{kk};
             if ~isempty(paraval)
-                paraval(find(abs(paraval)==32))=[];
+                paraval = strrep(paraval,' ','');
+                %paraval(find(abs(paraval)==32))=[];
                 parav{kk} = paraval;
             end
         end
@@ -878,11 +880,13 @@ elseif strcmp(action,'proceed')
         % Build strings for the title.
         txderstr = derivstr;
         
-        kxder = find(abs(txderstr)==42);  % Get rid of *s
+        %kxder = find(abs(txderstr)==42);  % Get rid of *s
+        kxder = strfind(txderstr,'*');
         txderstr(kxder)=' '*ones(size(kxder));
         txderstr = strrep(txderstr,'-',' - ');  % Extra spaces
         txderstr = strrep(txderstr,'+',' + ');
-        if (abs(txderstr(1)) == 32)  % Get rid of starting space
+        %if (abs(txderstr(1)) == 32)  % Get rid of starting space
+         if strcmp(txderstr(1),' ') 
             txderstr = txderstr(2:length(txderstr));
         end
         tstr = [Xname,' '' = ', txderstr];
@@ -897,11 +901,13 @@ elseif strcmp(action,'proceed')
             if ~isempty(parav{kk})
                 tp1str = parav{kk};
                 
-                kxder = find(abs(tp1str)==42);  % Get rid of *s
+                %kxder = find(abs(tp1str)==42);  % Get rid of *s
+                kxder = strfind(tp1str,'*');
                 tp1str(kxder)=' '*ones(size(kxder));
                 tp1str = strrep(tp1str,'-',' - ');  % Extra spaces
                 tp1str = strrep(tp1str,'+',' + ');
-                if (abs(tp1str(1)) == 32)  % Get rid of starting space
+                %if (abs(tp1str(1)) == 32)  % Get rid of starting space
+                if strcmp(tp1str(1),' ')
                     tp1str = tp1str(2:length(tp1str));
                 end
                 pstring{kk} = [pname{kk},' = ', tp1str];
@@ -920,9 +926,12 @@ elseif strcmp(action,'proceed')
         % labels.
         txname = Xname;
         ttname = Tname;
-        derivstr(find(abs(derivstr)==92))=[];
-        Xname(find(abs(Xname)==92))=[];
-        Tname(find(abs(Tname)==92))=[];
+%         derivstr(find(abs(derivstr)==92))=[];
+%         Xname(find(abs(Xname)==92))=[];
+%         Tname(find(abs(Tname)==92))=[];
+        derivstr = strrep(derivstr,'\','');
+        Xname = strrep(Xname,'\','');
+        Xname = strrep(Xname,'\','');
         
         eval([Xname,'=XxXxXx;'],'err = 1;');
         if err
@@ -951,18 +960,20 @@ elseif strcmp(action,'proceed')
         pvalh = sud.h.pval;
         for kk = 1:4
             pn = char(get(pnameh(kk),'string'));
-            pn(find(abs(pn)==92))=[];
+            %pn(find(abs(pn)==92))=[];
+            pn = strrep(pn,'\','');
             pv = char(get(pvalh(kk),'string'));
             if ~isempty(pn)
                 if isempty(pv)
                     perr = pvalh(kk);
                 else
-                    if isempty(str2num(pv)) % This is an expression.
+                    if isempty(str2double(pv)) % This is an expression.
                         tpv = pv;
-                        tpv(find(abs(tpv)==92))=[];
+                        %tpv(find(abs(tpv)==92))=[];
+                        tpv = strrep(tpv,'\','');
                         err = 0; pval = '';
                         eval(['pval = ',tpv,';'],'err=1;');   %pval;
-                        if (err | isempty(pval))
+                        if err || isempty(pval)
                             errmsg = ['The expression for ',pn,' is not valid.'];
                             fprintf('\a')
                             errordlg(errmsg,'matdfield error','on');
@@ -997,7 +1008,7 @@ elseif strcmp(action,'proceed')
             else
                 errstr1 = 'The differential equation does not evaluate correctly.';
                 errstr2 = 'At least one of the parameter values is not a number.';
-                errmsg = str2mat(errstr1,errstr2);
+                errmsg = char(errstr1,errstr2);
                 set(perr,'string','?');
             end
             fprintf('\a')
@@ -1040,7 +1051,7 @@ elseif strcmp(action,'proceed')
             dud.syst = sud.c;
             dud.settings = sud.settings;
             dfcnn = dud.function;
-            if exist(dfcnn) == 2
+            if exist(dfcnn,'file')
                 delete([tempdir,dfcnn,'.m'])
             end
             
@@ -1597,7 +1608,7 @@ elseif strcmp(action,'dirfield')
     % Calculate the line and vector fields.
     
     Xx=Xx(:);Tt=Tt(:);
-    Ww = zeros(size(Xx));
+    %Ww = zeros(size(Xx)); % Preallocated value unused
     Ww = feval(dfcn,Tt',Xx');
     Vv = ones(size(Ww)) + Ww*sqrt(-1);
     Vv = Vv.';
@@ -1613,7 +1624,7 @@ elseif strcmp(action,'dirfield')
     ww = (zzz == 0);
     scale = scale + ww;
     aa1 = 0.3*arrow*(zzz./scale)+ones(size(arrow))*(mgrid.');
-    [r,c] = size(aa1);
+    [~,c] = size(aa1);
     aa1=[aa1;NaN*ones(1,c)];
     aa1=aa1(:);
     
@@ -1621,7 +1632,7 @@ elseif strcmp(action,'dirfield')
     zz=sign(zz).*((abs(zz)).^(1/3));
     scale = 0.9*sc./max(max(abs(zz)));
     aa2 = scale*arrow*zz +ones(size(arrow))*(mgrid.');
-    [r,c] = size(aa2);
+    [~,c] = size(aa2);
     aa2=[aa2;NaN*ones(1,c)];
     aa2=aa2(:);
     axes(dfdispa);
@@ -1657,7 +1668,7 @@ elseif strcmp(action,'dirfield')
     if ~isempty(dud.plhand)
         set(dud.plhand,'xdata',aa);
     end
-    if (isfield(dud,'plineh') & (~isempty(dud.plineh)))
+    if isfield(dud,'plineh') && (~isempty(dud.plineh))
         set(dud.plineh,'xdata',[aa,aa],'ydata',Dxint);
     else
         dud.plineh = plot([aa,aa],Dxint,'color',dud.color.pline);
@@ -1888,7 +1899,7 @@ elseif strcmp(action,'kcompute')
     tstr = get(kh.tval,'string');
     pnameh = sud.h.pname;
     pvalh = sud.h.pval;
-    pflag = zeros(1,4);
+    pflag = zeros(1,4); %#ok<PREALL> % Somehow this might get used
     perr = [];
     for kk = 1:4
         pn = char(get(pnameh(kk),'string'));
@@ -1902,13 +1913,13 @@ elseif strcmp(action,'kcompute')
             end
         end
     end
-    xvalue = str2num(xstr);
-    tvalue = str2num(tstr);
+    xvalue = str2double(xstr);
+    tvalue = str2double(tstr);
     
     
     if get(kh.spec,'value')
-        t0 = str2num(get(kh.t0,'string'));
-        tf = str2num(get(kh.tf,'string'));
+        t0 = str2double(get(kh.t0,'string'));
+        tf = str2double(get(kh.tf,'string'));
         initpt = [tvalue,xvalue,t0,tf];
         if (length(initpt) ~= 4)
             warndlg({'Values must be entered for all of the entries.'},...
@@ -1918,7 +1929,7 @@ elseif strcmp(action,'kcompute')
             warndlg({'The final time of the computation interval';...
                 'must be smaller than the initial time.'},'Illegal input');
             compute = 0;
-        elseif (tvalue < t0) | (tvalue > tf)
+        elseif (tvalue < t0) || (tvalue > tf)
             warndlg('The initial time must be in the computation interval.',...
                 'Illegal input');
             compute = 0;
@@ -2549,7 +2560,7 @@ elseif strcmp(action,'settings')
         case 'none'
             rval1 = 0;rval2 = 0;rval3 = 3;
         otherwise
-            error(['Unknown fieldtype ',ud.o.fieldtype,'.'])
+            error('DFIELD:UnknownFieldType',['Unknown fieldtype ',fieldtype,'.'])
     end
     
     data.rad(1) = uicontrol('style','radio',...
@@ -2639,7 +2650,7 @@ elseif strcmp(action,'setchange')
     data = get(dfsett,'user');
     dfdisp = findobj('name','matdfield Display');
     dfset = findobj('name','matdfield Setup');
-    if isempty(dfdisp)|isempty(dfset)
+    if isempty(dfdisp) || isempty(dfset)
         matdfield('confused');
         return
     end
@@ -2719,7 +2730,7 @@ elseif strcmp(action,'delete')
             nstr{5} = 'Ready.';
             set(notice,'string',nstr);
         end
-    elseif strcmp(typ,'text') & ~ismember(objh,hh)
+    elseif strcmp(typ,'text') && ~ismember(objh,hh)
         delete(objh);
         if isvalid(notice)
             nstr(1:4) = nstr(2:5);
@@ -2787,7 +2798,7 @@ elseif strcmp (action,'zoomback')
         winstr{j} = [' ',a,' < ',Tname,' < ',b,'   &   ',c,' < ', Xname,' < ',d];
     end
     
-    [sel,ok] = listdlg('liststring',winstr,...
+    [sel,~] = listdlg('liststring',winstr,...
         'selectionmode','single',...
         'listsize',[270,100],...
         'initialvalue',wch,...
@@ -2827,8 +2838,10 @@ elseif strcmp(action,'level')
     lfcn = dud.level;
     tname = dud.syst.tname;
     xname = dud.syst.xname;
-    tname(find(abs(tname)==92))=[];  % Remove \s if any.
-    xname(find(abs(xname)==92))=[];
+    %tname(find(abs(tname)==92))=[];  % Remove \s if any.
+    %xname(find(abs(xname)==92))=[];
+    tname=strrep(tname,'\','');
+    xname=strrep(xname,'\','');
     dflevel = findobj('name','matdfield Level sets');
     if ~isempty(dflevel)
         delete(dflevel)
@@ -2991,22 +3004,25 @@ elseif strcmp(action,'levcomp')
     pvalh = sud.h.pval;
     pflag = zeros(1,4);
     perr = [];
-    lfcn(find(abs(lfcn)==32))=[];
+    %lfcn(find(abs(lfcn)==32))=[];
+    lfcn = strrep(lfcn,' ','');
     for kk = 1:4
         pn = get(pnameh(kk),'string');
         pv = get(pvalh(kk),'string');
         if ~isempty(pn)
-            pn(find(abs(pn)==92))=[];
+            %pn(find(abs(pn)==92))=[];
+            pn = strrep(pn,'\','');
             if isempty(pv)
                 perr = pvalh(kk);
             else
-                pv(find(abs(pv)==32))=[];
+                %pv(find(abs(pv)==32))=[];
+                pv = strrep(pv,' ','');
                 lfcn = matdfield('paraeval',pn,pv,lfcn);
             end
         end
     end
     l = length(lfcn);
-    for (k=fliplr(find((lfcn=='^')|(lfcn=='*')|(lfcn=='/'))))
+    for k=fliplr(find((lfcn=='^')|(lfcn=='*')|(lfcn=='/')))
         lfcn = [lfcn(1:k-1) '.' lfcn(k:l)];
         l = l+1;
     end
@@ -3016,13 +3032,15 @@ elseif strcmp(action,'levcomp')
     YyYyYy = WINvect(3) + rand*(WINvect(4)-WINvect(3));
     tname = dud.syst.tname;
     xname = dud.syst.xname;
-    tname(find(abs(tname)==92))=[];  % Remove \s if any.
-    xname(find(abs(xname)==92))=[];
+    %tname(find(abs(tname)==92))=[];  % Remove \s if any.
+    %xname(find(abs(xname)==92))=[];
+    tname = strrep(tname,'\','');
+    xname = strrep(xname,'\','');
     err = 0;res = 1;
     eval([tname,'=XxXxXx;'],'err = 1;');
     eval([xname,'=YyYyYy;'],'err = 1;');
     eval(['res = ',lfcn, ';'],'err = 1;');
-    if err | isempty(res)
+    if err || isempty(res)
         errmsg = 'The function does not evaluate correctly.';
         fprintf('\a')
         errordlg(errmsg,'matdfield error','on');
@@ -3051,7 +3069,7 @@ elseif strcmp(action,'levcomp')
     switch KK
         case 1  % vector input
             rhs = get(ud.rhs,'string');
-            rhs = str2num(rhs);
+            rhs = str2num(rhs); %#ok<ST2NM> % This takes vector data so needs str2num
             
         case 2  % mouse input
             figure(dfdisp);
@@ -3060,7 +3078,7 @@ elseif strcmp(action,'levcomp')
             eval([tname,'=XX;'],'err = 1;');
             eval([xname,'=YY;'],'err = 1;');
             eval(['rhs = ',lfcn, ';'],'err = 1');
-            LL = ceil(log10(abs(rhs)));
+            LL = ceil(log10(abs(rhs))); %#ok<NODEF> % This seems not to give error
             rhs = round(10^(KKK-LL)*rhs);
             rhs = 10^(LL-KKK)*rhs;
             
@@ -3137,7 +3155,7 @@ elseif strcmp(action,'figdefault')
         case 'black'
             % if isunix | isvms, gamma = 0.5; else gamma = 0.0; end
             whitebg(fig,[0,0,0])
-            if isunix | isvms
+            if isunix || isvms
                 fc = [.35 .35 .35];
             else
                 fc = [.2 .2 .2];
@@ -3224,8 +3242,8 @@ elseif strcmp(action,'paraeval')
         s = [];
         pos = 1;
         for jj = 1:lk
-            if (((k(jj) == 1)|(find(lopstr == str(k(jj)-1))))...
-                    &((k(jj)+lp-1 == ll)|(find(ropstr == str(k(jj) + lp)))))
+            if ((k(jj) == 1) || (find(lopstr == str(k(jj)-1))))...
+                    && ((k(jj)+lp-1 == ll)|| (find(ropstr == str(k(jj) + lp))))
                 s = [s,str(pos:(k(jj)-1)),value]; %#ok<AGROW>
                 pos = k(jj)+lp;
             end
@@ -3266,7 +3284,7 @@ elseif strcmp(action,'restart')
         dud = get(dfdisp,'user');
         if isfield(dud,'function')
             fcn = [tempdir,dud.function];
-            if (exist(fcn)==2); delete([fcn,'.m']);end
+            if exist(fcn,'file'); delete([fcn,'.m']);end
         end
     end
     h = findobj('tag','matdfield');
@@ -3280,7 +3298,7 @@ elseif strcmp(action,'closefcn')
     
     fig = gcf;
     name = get(fig,'name');
-    if strcmp(name,'matdfield Setup') | strcmp(name,'matdfield Display')
+    if strcmp(name,'matdfield Setup') || strcmp(name,'matdfield Display')
         quest = ['Closing this window will cause all matdfield ',...
             'windows to close, and matdfield will stop.  ',...
             'Do you want to quit matdfield?'];
@@ -3291,7 +3309,7 @@ elseif strcmp(action,'closefcn')
     elseif strcmp(name,'matdfield Linearization')
         dud = get(fig,'user');
         fcn = dud.function;
-        if (exist(fcn)==2); delete([fcn,'.m']);end
+        if exist(fcn,'file'); delete([fcn,'.m']);end
         delete(findobj('label',name));
         delete(fig);
     else
@@ -3343,7 +3361,7 @@ elseif strcmp(action,'confused')
     
 elseif strcmp(action,'cdisp')
     
-    [dfcbo,dfdisp] = gcbo;
+    [~,dfdisp] = gcbo;
     dud = get(dfdisp,'user');
     cp = get(dfdisp,'currentpoint');
     fpos = get(dfdisp,'pos');
@@ -3368,7 +3386,8 @@ elseif strcmp(action,'savesyst')
             newsyst = sud.c;
             fn = newsyst.name;
             if ~isempty(fn)
-                fn(find(abs(fn)==32))='_';   % Replace spaces by underlines.
+                %fn(find(abs(fn)==32))='_';   % Replace spaces by underlines.
+                fn = strrep(fn,' ','_');
             end
             fn = [fn, '.dfs'];  % full filename
             comp = computer;
@@ -3384,7 +3403,7 @@ elseif strcmp(action,'savesyst')
             if fname == 0,return;end
             if ~strcmp(fname,fn)
                 ll = length(fname);
-                if (ll>4 & strcmp(fname(ll-3:ll),'.dfs'))
+                if ll>4 && strcmp(fname(ll-3:ll),'.dfs')
                     fn = fname;
                     sfn = fname(1:ll-4);  % short filename
                 else
@@ -3408,7 +3427,7 @@ elseif strcmp(action,'savesyst')
             for j=1:ll
                 names{j} = systems(j).name;
             end
-            [sel,ok] = listdlg('PromptString','Select the equations',...
+            [sel,~] = listdlg('PromptString','Select the equations',...
                 'Name','Gallery selection',...
                 'ListString',names);
             if isempty(sel)
@@ -3427,14 +3446,14 @@ elseif strcmp(action,'savesyst')
             end
             [fname,pname] = uiputfile(prompt,'Save the gallery as:');
             ll = length(fname);
-            if (ll>4 & strcmp(fname(ll-3:ll),'.dfg'))
+            if ll>4 && strcmp(fname(ll-3:ll),'.dfg')
                 fn = fname;
                 sfn = fname(1:ll-4);
             else
                 sfn = fname;
                 fn = [fname, '.dfg'];
             end
-            newsyst.name = sfn;
+            newsyst.name = sfn; %#ok<STRNU>  % Not sure if this somehow gets used
             sud.c.name = sfn;
             set(dfset,'user',sud);
             
@@ -3530,7 +3549,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         megall = sud.h.gallery;
         mh = get(megall,'children');
         add = findobj(megall,'tag','add system');
-        mh(find(mh == add)) = [];
+        mh((mh == add)) = []; % I think I could make this better
         delete(mh);
         newsysstruct = get(megall,'user');
         system = sud.system;
@@ -3622,7 +3641,7 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
             for k = 2:8
                 eval(newsysts{(j-1)*8+k});
             end
-            newsysstruct(j) = H; %#ok<AGROW>
+            newsysstruct(j) = H; %#ok<NODEF,AGROW> % Somehow H does exist
         end
         
     end  % if strcmp(type,'default') & else
@@ -3636,7 +3655,8 @@ elseif strcmp(action,'loadsyst')  % This loads either a system or a gallery.
         
         newsyst = newsysstruct(j);
         sname = newsyst.name;
-        sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
+        %sname(find(abs(sname) == 95)) = ' '; % Replace underscores with spaces.
+        sname = strrep(sname,'_',' ');
         newsyst.name = sname;
         ignore = matdfield('addgall',newsyst);
         if ignore == -1
@@ -3877,7 +3897,7 @@ elseif strcmp(action,'system')
     ud = get(dfset,'user');
     kk = input1;
     if ischar(kk)
-        kk = str2num(input1);
+        kk = str2double(input1);
     end
     system = get(ud.h.gallery,'user');
     syst = system(kk);
