@@ -1,7 +1,9 @@
 function output = matdfield(action,input1,input2,input3)
 
-% matdfield	is an interactive tool for studying single first order
-%	differential equations.  When matdfield is executed, a matdfield Setup
+%   matdfield	is an interactive tool for studying single first order
+%	differential equations.
+%
+%   When matdfield is executed, a matdfield Setup
 %	window is opened.  The user may enter the differential
 %	equation and specify a display window using the interactive
 %	controls in the Setup window.
@@ -25,6 +27,9 @@ function output = matdfield(action,input1,input2,input3)
 %
 %  Modified in April 2019 by Giampiero Campa for versions R2014b and later
 %  Copyright 2019 The MathWorks, Inc.
+%
+%  Modified in January 2021 by Roy Goodman, tested on R2020b
+%  Copyright 2021 Roy Goodman, NJIT
 
 startstr = 'matdfield';
 
@@ -63,12 +68,13 @@ if strcmp(action,'initialize')
     % Make sure tempdir is on the MATLABPATH.  We want to be sure that we
     % return the path to its current position when we exit.
     
-    p = path;
-    tmpdir = tempdir;
-    ll = length(tmpdir);
-    tmpdir = tmpdir(1:ll-1);
+%    p = path;
+%    tmpdir = tempdir;
+%    ll = length(tmpdir);
+%    tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if ~contains(p,tmpdir)
+    if ~contains(path,tempdir)
+%    if ~contains(p,tmpdir)
         ud.remtd = 1;
         addpath(tempdir)
     end
@@ -81,8 +87,8 @@ if strcmp(action,'initialize')
         fn = oldfiles(k).name;
         fid = fopen(fn,'r');
         if fid ~= -1
-            ll = fgetl(fid); %#ok<*NASGU>
-            ll = fgetl(fid);
+            fgetl(fid); % Skip over 1st line
+            fgetl(fid); % Skip over 2nd line
             ll = fgetl(fid);
             fclose(fid);
             if strcmp(ll,'%% Created by matdfield')
@@ -97,8 +103,8 @@ if strcmp(action,'initialize')
         fn = [tempdir,oldfiles(k).name];
         fid = fopen(fn,'r');
         if fid ~= -1
-            ll = fgetl(fid);
-            ll = fgetl(fid);
+            fgetl(fid); % Skip over 1st line
+            fgetl(fid); % Skip over 2nd line
             ll = fgetl(fid);
             fclose(fid);
             if ~contains(ll,'%% Created by DF')
@@ -147,13 +153,13 @@ if strcmp(action,'initialize')
                         solvhandle = @matdfdp45;
                         
                     case 'Euler'
-                        solvhandle = @dfeul;
+                        solvhandle = @matdfeul;
                         
                     case 'Runge-Kutta 2'
-                        solvhandle = @dfrk2;
+                        solvhandle = @matdfrk2;
                         
                     case 'Runge-Kutta 4'
-                        solvhandle = @dfrk4;
+                        solvhandle = @matdfrk4;
                         
                     otherwise
                         error('DFIELD:UndefinedSolver','Undefined solver.');
@@ -272,7 +278,7 @@ if strcmp(action,'initialize')
     varw = 40*rr;		% Length of variable boxes.
     equalw =13*rr;	% Length of equals.(30)
     eqlength = 230*rr;	% Length of right hand sides of equations.
-    winstrlen = 120*rr;	% Length of string boxes in display frame.
+    %winstrlen = 120*rr;	% Length of string boxes in display frame.
     left = 1;		% Left margin of the frames.
     frsep = 1;    	% Separation between frames.
     separation = texth;	% Separation between boxes.
@@ -386,7 +392,7 @@ if strcmp(action,'initialize')
         'visible','off',...
         'backgroundcolor',ecolor);
     
-    pframe = uicontrol('style','frame','pos',pfrwind,'visible','on');
+    [~] = uicontrol('style','frame','pos',pfrwind,'visible','on');
     
     pncall = [
         '[h,fig] = gcbo;'...
@@ -448,11 +454,11 @@ if strcmp(action,'initialize')
                 'call',pncall,...
                 'visible','off',...
                 'backgroundcolor','w');
-            equal(K) = uicontrol('style','text',...
+            [~] = uicontrol('style','text',...
                 'pos',[peqleft pbot(jj)-fudge peqw texth],...
                 'horizon','center',...
                 'string','=',...
-                'visible','off'); %#ok<AGROW>
+                'visible','off'); 
             
             ud.h.pval(K) = uicontrol('style','edit',...
                 'pos',[pvleft pbot(jj) pvalw texth],...
@@ -467,10 +473,10 @@ if strcmp(action,'initialize')
     ud.c.pname = pname;
     ud.c.pval = pval;
     
-    pbot = pbot + texth;
+    % pbot = pbot + texth;  % Appears to be unused
     
     
-    frame(2) = uicontrol('style','frame','pos',disfrwind,'visible','off');
+    [~] = uicontrol('style','frame','pos',disfrwind,'visible','off');
     
     w1 = [
         'ud = get(gcf,''user'');'...
@@ -521,7 +527,7 @@ if strcmp(action,'initialize')
     twindw = (disfrw - 10)/2-windw;
     twindl = eqleft + twindw + windw;
     
-    dwind = uicontrol('style','text',...
+    [~] = uicontrol('style','text',...
         'pos',[eqleft winbot1 disfrw-10 texth],...
         'horizon','center',...
         'string','The display window.','visible','off',...
@@ -580,19 +586,19 @@ if strcmp(action,'initialize')
     
     
     
-    butt(1) = uicontrol('style','push',...
+    [~] = uicontrol('style','push',...
         'pos',qwind,...
         'string','Quit',...
         'call','matdfield(''quit'')',...
         'visible','off');
     
-    butt(2) = uicontrol('style','push',...
+    [~] = uicontrol('style','push',...
         'pos',rwind,...
         'string','Revert',...
         'call','matdfield(''revert'')',...
         'visible','off');
     
-    butt(3) = uicontrol('style','push',...
+    [~] = uicontrol('style','push',...
         'pos',pwind,...
         'string','Proceed',...
         'call','matdfield(''proceed'')',...
@@ -620,42 +626,42 @@ if strcmp(action,'initialize')
     meprev = findobj(mefile,'label','Print Pre&view...');
     mepset = findobj(mefile,'label','Pa&ge Setup...');
     set(get(mefile,'child'),'vis','off');
-    meload = uimenu(mefile,'label','Load an equation ...',...
+    [~] = uimenu(mefile,'label','Load an equation ...',...
         'Callback','matdfield(''loadsyst'',''system'');',...
         'pos',1);
-    mesave = uimenu(mefile,'label','Save the current equation ...',...
+    [~] = uimenu(mefile,'label','Save the current equation ...',...
         'Callback','matdfield(''savesyst'',''system'');',...
         'pos',2);
-    meloadg = uimenu(mefile,'label','Load a gallery ...',...
+    [~] = uimenu(mefile,'label','Load a gallery ...',...
         'Callback','matdfield(''loadsyst'',''gallery'');',...
         'separator','on','pos',3);
-    mesaveg = uimenu(mefile,'label','Save a gallery ...',...
+    [~] = uimenu(mefile,'label','Save a gallery ...',...
         'Callback','matdfield(''savesyst'',''gallery'');',...
         'tag','savegal','pos',4);
-    medelg = uimenu(mefile,'label','Delete the current gallery',...
+    [~] = uimenu(mefile,'label','Delete the current gallery',...
         'Callback',delgall,'pos',5);
-    melddg = uimenu(mefile,'label','Load the default gallery',...
+    [~] = uimenu(mefile,'label','Load the default gallery',...
         'Callback','matdfield(''loadsyst'',''default'');',...
         'enable','on',...
         'tag','load default','pos',6);
-    meproceed = uimenu(mefile,'label','Proceed','Callback',...
+    [~] = uimenu(mefile,'label','Proceed','Callback',...
         'matdfield(''proceed'')','separator','on',...
         'accelerator','G','pos',7);
-    merevert = uimenu(mefile,'label','Revert','Callback',...
+    [~] = uimenu(mefile,'label','Revert','Callback',...
         'matdfield(''revert'')','separator','off','pos',8);
     set(mepset,'vis','on','pos',9);
     set(meprev,'vis','on','label','Page Pre&view...','pos',10);
     set(meexp,'vis','on','pos',11,'separator','off');
-    merestart = uimenu(mefile,'label','Restart matdfield','Callback',...
+    [~] = uimenu(mefile,'label','Restart matdfield','Callback',...
         'matdfield(''restart'')','separator','on','pos',12);
-    mequit = uimenu(mefile,'label','Quit matdfield','Callback',...
+    [~] = uimenu(mefile,'label','Quit matdfield','Callback',...
         'matdfield(''quit'')','separator','on','pos',13);
     
     % Edit menu.
     
     set(get(meedit,'child'),'vis','off');
     
-    meclrf = uimenu(meedit,'label','Clear equations',...
+    [~] = uimenu(meedit,'label','Clear equations',...
         'Callback',['ud = get(gcf,''user'');h = ud.h;',...
         'set([h.xname,h.der,h.tname,h.der],''string'','''');'],...
         'accelerator','E');
@@ -667,11 +673,11 @@ if strcmp(action,'initialize')
         'ud.c.pval = {};',...
         'set(gcf,''user'',ud);',...
         ];
-    meclrp = uimenu(meedit,'label','Clear parameters',...
+    [~] = uimenu(meedit,'label','Clear parameters',...
         'Callback',pclear,...
         'accelerator','N');
     
-    meclrwind = uimenu(meedit,'label','Clear display window',...
+    [~] = uimenu(meedit,'label','Clear display window',...
         'Callback',['ud = get(gcf,''user'');',...
         'set(ud.h.wind,''string'','''');'],...
         'accelerator','D');
@@ -685,7 +691,7 @@ if strcmp(action,'initialize')
         'set(gcf,''user'',ud);',...
         ];
     
-    meclrall = uimenu(meedit,'label','Clear all',...
+    [~] = uimenu(meedit,'label','Clear all',...
         'Callback',allclear,...
         'accelerator','A',...
         'separator','on');
@@ -695,16 +701,16 @@ if strcmp(action,'initialize')
     
     sysmenu = uimenu('label','Gallery','visible','off','pos',3);
     
-    meadd = uimenu(sysmenu,'label','Add current equation to the gallery',...
+    [~] = uimenu(sysmenu,'label','Add current equation to the gallery',...
         'Callback','matdfield(''addgall'');','tag','add system');
     sep = 'on';
     
     for kk = 1:length(system)
         kkk = num2str(kk);
         if kk == 2, sep = 'off';end
-        sysmen(kk) = uimenu(sysmenu,'label',system(kk).name,...
+        [~] = uimenu(sysmenu,'label',system(kk).name,...
             'Callback',['matdfield(''system'',',kkk,')'],...
-            'separator',sep,'visible','on'); %#ok<AGROW>
+            'separator',sep,'visible','on'); 
     end
     set(sysmenu,'user',system);
     ud.h.gallery = sysmenu;
@@ -812,11 +818,11 @@ elseif strcmp(action,'proceed')
         dfdisp = findobj('name','matdfield Display');
         dud = get(dfdisp,'user');
         aud = get(dud.axes,'user');
-        tstr = get(get(dud.axes,'title'),'string');
+        % tstr = get(get(dud.axes,'title'),'string'); % This appears to be unused
         wind = sud.c.wind(:);
         hmax = dud.settings.hmax;
         if (~all(wind == dud.syst.wind(:)))
-            dwind = [wind(1); wind(3); -wind(2); -wind(4)];
+            % dwind = [wind(1); wind(3); -wind(2); -wind(4)];
             DY = [wind(2)-wind(1); wind(4)-wind(3)];
             hmax = min(hmax,DY(1)/4);
             aud.DY = DY;
@@ -918,33 +924,33 @@ elseif strcmp(action,'proceed')
         
         SS = warning;
         warning off
-        XxXxXx = WINvect(1) + rand*(WINvect(2)-WINvect(1));
-        TtTtTt = WINvect(3) + rand*(WINvect(4)-WINvect(3));
-        err = 0;
+        TtTtTt = WINvect(1) + rand*(WINvect(2)-WINvect(1));
+        XxXxXx = WINvect(3) + rand*(WINvect(4)-WINvect(3));
+        %err = 0;
         
         % Now we remove the backslashes (\) used to get Greek into the
         % labels.
-        txname = Xname;
-        ttname = Tname;
+%        txname = Xname;
+%        ttname = Tname;
 %         derivstr(find(abs(derivstr)==92))=[];
 %         Xname(find(abs(Xname)==92))=[];
 %         Tname(find(abs(Tname)==92))=[];
         derivstr = strrep(derivstr,'\','');
         Xname = strrep(Xname,'\','');
-        Xname = strrep(Xname,'\','');
+        Tname = strrep(Tname,'\','');
         
-        eval([Xname,'=XxXxXx;'],'err = 1;');
-        if err
-            errmsg = ['"',xstr, '" is not a valid variable name in MATLAB.'];
+%        eval([Xname,'=XxXxXx;'],'err = 1;');
+        if ~isvarname(Xname)
+            errmsg = ['"',Xname, '" is not a valid variable name in MATLAB.'];
             fprintf('\a')
             errordlg(errmsg,'matdfield error','on');
             warning(SS)
             return
         end
-        err = 0;
-        eval([Tname,'=TtTtTt;'],'err = 1;');
-        if err
-            errmsg = ['"',tstr, '" is not a valid variable name in MATLAB.'];
+%        err = 0;
+%        eval([Tname,'=TtTtTt;'],'err = 2;');
+        if ~isvarname(Tname)
+            errmsg = ['"',Tname, '" is not a valid variable name in MATLAB.'];
             fprintf('\a')
             errordlg(errmsg,'matdfield error','on');
             warning(SS)
@@ -1001,7 +1007,10 @@ elseif strcmp(action,'proceed')
         % Some more error trapping.
         
         eval(['res = ',derivstr, ';'],'err = 1;');
-        if err || isempty(res)
+        derivfcn=str2func(['@(' Tname ',' Xname ')' derivstr]);
+        try
+            derivfcn(TtTtTt,XxXxXx);
+        catch
             if isempty(perr)
                 errmsg = ['The differential equation ',...
                     'is not entered correctly.'];
@@ -1073,11 +1082,11 @@ elseif strcmp(action,'proceed')
             uni = get(0,'units');
             set(0,'units','pixels');
             ss = get(0,'screensize');
-            style = sud.style;
+            %style = sud.style;
             set(0,'units',uni);
             
             nframeh = 70;   % Default notice frame height
-            dfaxb = 4+nframeh+35;
+            %dfaxb = 4+nframeh+35;
             
             titleh = 30;
             bottomedge = 38;
@@ -1215,10 +1224,10 @@ elseif strcmp(action,'proceed')
             set(findobj(fmenu,'label','Print Pre&view...'),'pos',5);
             set(findobj(fmenu,'label','Print Set&up...'),'pos',6);
             set(findobj(fmenu,'label','&Print...'),'pos',7);
-            merestart = uimenu(fmenu,'label','Restart matdfield','Callback',...
+            [~] = uimenu(fmenu,'label','Restart matdfield','Callback',...
                 'matdfield(''restart'')','separator','on','pos',8);
             
-            mequit = uimenu(fmenu,'label','Quit matdfield',...
+            [~] = uimenu(fmenu,'label','Quit matdfield',...
                 'Callback','matdfield(''quit'')','separator','on');
             
             % Tools menu
@@ -1242,32 +1251,32 @@ elseif strcmp(action,'proceed')
                 'Callback','matdfield(''zoomin'')',...
                 'pos',1);
             
-            zbmenu = uimenu(emenu,'label','Zoom back.',...
+            [~] = uimenu(emenu,'label','Zoom back.',...
                 'Callback','matdfield(''zoomback'')',...
                 'enable','off',...
                 'tag','zbmenu',...
                 'pos',2);
             
-            metext = uimenu(emenu,'label','Enter text on the Display Window.',...
+            [~] = uimenu(emenu,'label','Enter text on the Display Window.',...
                 'Callback','matdfield(''text'')',...
                 'separator','on',...
                 'pos',3);
             
-            medel = uimenu(emenu,'label','Delete a graphics object.',...
+            [~] = uimenu(emenu,'label','Delete a graphics object.',...
                 'Callback','matdfield(''delete'')',...
                 'visible','on',...
                 'pos',4);
-            medall = uimenu(emenu,'label','Erase all solutions.',...
+            [~] = uimenu(emenu,'label','Erase all solutions.',...
                 'Callback','matdfield(''dallsol'')',...
                 'separator','off',...
                 'pos',5);
             
-            medalllev = uimenu(emenu,'label','Erase all level curves.',...
+            [~] = uimenu(emenu,'label','Erase all level curves.',...
                 'Callback','matdfield(''dalllev'')',...
                 'separator','off',...
                 'pos',6);
             
-            medall = uimenu(emenu,'label','Erase all graphics objects.',...
+            [~] = uimenu(emenu,'label','Erase all graphics objects.',...
                 'Callback','matdfield(''dall'')',...
                 'separator','off',...
                 'pos',7);
@@ -1288,17 +1297,17 @@ elseif strcmp(action,'proceed')
             
             menu(1) = uimenu('label','Options','visible','off','pos',3);
             
-            menukey = uimenu(menu(1),'label','Keyboard input.','Callback',...
+            [~] = uimenu(menu(1),'label','Keyboard input.','Callback',...
                 'matdfield(''kbd'')');
             
-            mesev   = uimenu(menu(1),'label','Plot several solutions.',...
+            [~]   = uimenu(menu(1),'label','Plot several solutions.',...
                 'Callback','matdfield(''several'')');
             
-            menulevel = uimenu(menu(1),'label','Plot level curves.',...
+            [~] = uimenu(menu(1),'label','Plot level curves.',...
                 'Callback','matdfield(''level'')',...
                 'separator','off','tag','level');
             
-            meexportdata = uimenu(menu(1),'label','Export solution data.',...
+            [~] = uimenu(menu(1),'label','Export solution data.',...
                 'Callback','matdfield(''export'')',...
                 'separator','off','tag','dexp');
             
@@ -1321,10 +1330,10 @@ elseif strcmp(action,'proceed')
                 '  set(gcf,''user'',ud);',...
                 'end'];
             
-            mepline = uimenu(menu(1),'label','Show the phase line.',...
+            [~] = uimenu(menu(1),'label','Show the phase line.',...
                 'Callback',plcall,'tag','pline','separator','on');
             
-            mesolvset = uimenu(menu(1),'label','Solver settings.',...
+            [~] = uimenu(menu(1),'label','Solver settings.',...
                 'Callback','matdfield(''solvset'')');
             mesolve = uimenu(menu(1),'label','Solver.');
             
@@ -1361,7 +1370,7 @@ elseif strcmp(action,'proceed')
             eulset.refine = 1;
             eulset.tol = 0;
             eulset.solver = 'Euler';
-            eulset.solvhandle = @dfeul;
+            eulset.solvhandle = @matdfeul;
             eulset.stepsize = 0.1;
             eulset.hmax = 0;
             if strcmp(solver,'Euler')
@@ -1372,7 +1381,7 @@ elseif strcmp(action,'proceed')
             rk2set.refine = 1;
             rk2set.tol = 0;
             rk2set.solver = 'Runge-Kutta 2';
-            rk2set.solvhandle = @dfrk2;
+            rk2set.solvhandle = @matdfrk2;
             rk2set.stepsize = 0.1;
             rk2set.hmax = 0;
             if strcmp(solver,'Runge-Kutta 2')
@@ -1383,7 +1392,7 @@ elseif strcmp(action,'proceed')
             rk4set.refine = 1;
             rk4set.tol = 0;
             rk4set.solver = 'Runge-Kutta 4';
-            rk4set.solvhandle = @dfrk4;
+            rk4set.solvhandle = @matdfrk4;
             rk4set.stepsize = 0.1;
             rk4set.hmax = 0;
             if strcmp(solver,'Runge-Kutta 4')
@@ -1431,7 +1440,7 @@ elseif strcmp(action,'proceed')
                 'user',-1,...
                 'Callback',directionstr);
             
-            meset   = uimenu(menu(1),'label','Window settings.',...
+            [~]   = uimenu(menu(1),'label','Window settings.',...
                 'Callback','matdfield(''settings'')');
             
             menu(6) = uimenu(menu(1),'label','Make the Display Window inactive.',...
@@ -1474,7 +1483,7 @@ elseif strcmp(action,'proceed')
         set(0,'showhiddenhandles','on');
         set(findobj('tag','zbmenu'),'enable','off');
         set(0,'showhiddenhandles',hv);
-        pf = pflag;
+        % pf = pflag;
         k = find(pflag);
         if ~isempty(k)
             tstr = [tstr,'             '];
@@ -1512,7 +1521,7 @@ elseif strcmp(action,'proceed')
         ud.i = 0;
         ud.line = 0;
         wind = dud.syst.wind(:);
-        dwind = [wind(1); wind(3); -wind(2); -wind(4)];
+        % dwind = [wind(1); wind(3); -wind(2); -wind(4)];
         DY = [wind(2)-wind(1); wind(4)-wind(3)];
         ud.DY = DY;
         ud.cwind = wind - dud.settings.magn*[DY(1);-DY(1);DY(2);-DY(2)];
@@ -1548,7 +1557,7 @@ elseif strcmp(action,'dirfield')
     dfcn = dud.function;
     dfdispa = dud.axes;
     WINvect = dud.syst.wind;
-    settings = dud.settings;
+    %settings = dud.settings;
     notice = dud.notice;
     if isvalid(notice)
         nstr = get(notice,'string');
@@ -1610,11 +1619,11 @@ elseif strcmp(action,'dirfield')
     Xx=Xx(:);Tt=Tt(:);
     %Ww = zeros(size(Xx)); % Preallocated value unused
     Ww = feval(dfcn,Tt',Xx');
-    Vv = ones(size(Ww)) + Ww*sqrt(-1);
+    Vv = ones(size(Ww)) + Ww*1i;
     Vv = Vv.';
     Arrflag = dud.fieldtype;
     
-    mgrid = Tt+Xx.*sqrt(-1); % mgrid = mgrid(:);
+    mgrid = Tt+Xx.*1i; % mgrid = mgrid(:);
     zz=Vv.';
     sc = min(deltat,deltax);
     
@@ -1628,7 +1637,7 @@ elseif strcmp(action,'dirfield')
     aa1=[aa1;NaN*ones(1,c)];
     aa1=aa1(:);
     
-    arrow = [0,1,.7,1,.7].' + [0,0,.25,0,-.25].' * sqrt(-1);
+    arrow = [0,1,.7,1,.7].' + [0,0,.25,0,-.25].' * 1i;
     zz=sign(zz).*((abs(zz)).^(1/3));
     scale = 0.9*sc./max(max(abs(zz)));
     aa2 = scale*arrow*zz +ones(size(arrow))*(mgrid.');
@@ -1777,7 +1786,7 @@ elseif strcmp(action,'solution')
     
     disph = input2;
     dud = get(disph,'user');
-    tcol = dud.color.temp;
+    %tcol = dud.color.temp;
     pcol = dud.color.orb;
     notice = dud.notice;
     initpt = input1(:);
@@ -1789,11 +1798,11 @@ elseif strcmp(action,'solution')
     BB = wind(2);
     settings = dud.settings;
     ptstr = [' (',num2str(initpt(1),2), ', ', num2str(initpt(2),2), ')'];
-    refine = settings.refine;
-    tol = settings.tol;
-    ud = get(dud.axes,'user');
-    rtol = tol;
-    atol = tol*ud.DY*1e-4';
+    %refine = settings.refine;
+    %tol = settings.tol;
+    %ud = get(dud.axes,'user');
+    %rtol = tol;
+    %atol = tol*ud.DY*1e-4';
     if length(initpt)  == 2
         switch dud.dir
             case 0
@@ -1827,7 +1836,8 @@ elseif strcmp(action,'solution')
         end
         
         
-        [tp,xp] = feval(solvhandle,dfcn,intplus,initpt(2),disph);
+%        [tp,xp] = feval(solvhandle,dfcn,intplus,initpt(2),disph);
+        [tp,xp] = solvhandle(dfcn,intplus,initpt(2),disph);
         aud = get(dfdispa,'user');
         hnew1 = aud.line;
         set(aud.pline,'color', pcol);
@@ -1844,7 +1854,8 @@ elseif strcmp(action,'solution')
         end
         
         
-        [tm,xm] = feval(solvhandle,dfcn,intminus,initpt(2),disph);
+%        [tm,xm] = feval(solvhandle,dfcn,intminus,initpt(2),disph);
+        [tm,xm] = solvhandle(dfcn,intminus,initpt(2),disph);
         aud = get(dfdispa,'user');
         hnew2 = aud.line;
         set(aud.pline,'color', pcol);
@@ -1899,14 +1910,14 @@ elseif strcmp(action,'kcompute')
     tstr = get(kh.tval,'string');
     pnameh = sud.h.pname;
     pvalh = sud.h.pval;
-    pflag = zeros(1,4); %#ok<PREALL> % Somehow this might get used
-    perr = [];
+    %pflag = zeros(1,4);
+    % perr = [];
     for kk = 1:4
         pn = char(get(pnameh(kk),'string'));
         pv = char(get(pvalh(kk),'string'));
         if ~isempty(pn)
             if isempty(pv)
-                perr = pvalh(kk);
+                %perr = pvalh(kk);
             else
                 xstr = matdfield('paraeval',pn,pv,xstr);
                 tstr = matdfield('paraeval',pn,pv,tstr);
@@ -2019,7 +2030,7 @@ elseif strcmp(action,'kbd')
         'string','Close','Callback','close');
     
     nudge = 3;
-    left = 3; varl = 80; buttw = 60;
+    left = 3; varl = 80; %buttw = 60;
     xex = get(kbd.xname,'extent');
     ht = xex(4)+nudge;
     yex = get(kbd.tname,'extent');
@@ -2063,7 +2074,7 @@ elseif strcmp(action,'kbd')
     fight = 3*left + ht + fr1ht + fr2ht;
     figwind = [30,300,figw,fight];
     buttw = frw/2;
-    sep = (figw - 2*buttw)/3;
+    %sep = (figw - 2*buttw)/3;
     closel = left;
     compl = closel+buttw;
     clwind = [closel,left,buttw,ht];
@@ -2112,8 +2123,8 @@ elseif strcmp(action,'zoomin')
     % user to pick a new display rectangle.
     
     set(gcf,'WindowButtonDownFcn','matdfield(''zoom'')',...
-        'WindowButtonUpFcn','1;','inter','on');
-    set(gca,'inter','on');
+        'WindowButtonUpFcn','1;','Interrupt','on');
+    set(gca,'Interrupt','on');
     dud = get(gcf,'user');
     nstr = get(dud.notice,'string');
     nstr(1:4) = nstr(2:5);
@@ -2151,7 +2162,7 @@ elseif strcmp(action,'zoom')
     WINvect = a(:)';
     dud.syst.wind = WINvect;
     aud.DY = DY;
-    dwind = [WINvect(1); WINvect(3); -WINvect(2); -WINvect(4)];
+    % dwind = [WINvect(1); WINvect(3); -WINvect(2); -WINvect(4)];
     aud.cwind = WINvect(:) - ...
         dud.settings.magn*[DY(1);-DY(1);DY(2);-DY(2)];
     set(axh,'user',aud);
@@ -2374,17 +2385,17 @@ elseif strcmp(action,'solvset')
     hmaxb = setfrb + nudge;
     d1b = hmaxb + ht;
     rtolb = d1b + ht;
-    ssizeb = (rtolb+d1b)/2;
+    % ssizeb = (rtolb+d1b)/2;
     ssb = rtolb + ht + nudge;
     ssw = max(max(stw+varl,ext2(3)),300);
     frw = 2*nudge + ssw;
     figw = frw + 2*left;
-    buttw = figw/3;
-    sep = figw/9;
+    %buttw = figw/3;
+    %sep = figw/9;
     sl = left + nudge;
     d1l = (figw -stw-varl)/2;
-    gobl = sep;
-    chbl = 2*sep + buttw;
+    % gobl = sep;
+    % chbl = 2*sep + buttw;
     spb1 = setspfrb+2*nudge;
     spb2 = spb1+ht;
     spb3 = spb2+ht+nudge;
@@ -2394,7 +2405,7 @@ elseif strcmp(action,'solvset')
     sptl2 = sptl1 + sptw + sptsep;
     sptl3 = sptl2 + sptw + sptsep;
     
-    sunit = get(0,'units');
+    % sunit = get(0,'units');
     set(0,'units','pix');
     ssize = get(0,'screensize');
     figb = ssize(4) - figh - 50;
@@ -2415,14 +2426,14 @@ elseif strcmp(action,'solvset')
     set(gob,'pos',[left,gobb,frw,ht]);
     set(data.chb,'pos',[left,chbb,frw,ht]);
     if strcmp(name,'Dormand-Prince')
-        rtol = uicontrol('style','text','horiz','left',...
+        [~] = uicontrol('style','text','horiz','left',...
             'pos',[sl+5,rtolb,stw-5,ht],...
             'string','Relative error tolerance: ');
         data.rtol = uicontrol('style','edit','Callback',rtolcall,...
             'pos',[sl+stw,rtolb,varl,ht],...
             'string',num2str(data.settings.tol),...
             'background','w');
-        hmax = uicontrol('style','text','horiz','left',...
+        [~] = uicontrol('style','text','horiz','left',...
             'pos',[sl+5,hmaxb,stw-5,ht],...
             'string','Maximum step size: ');
         data.hmax = uicontrol('style','edit','Callback',hmaxcall,...
@@ -2523,7 +2534,7 @@ elseif strcmp(action,'settings')
     gobl = left;
     chbl = left + buttw;
     
-    sunit = get(0,'units');
+    %sunit = get(0,'units');
     set(0,'units','pix');
     ssize = get(0,'screensize');
     figb = ssize(4) - figh - 50;
@@ -2548,9 +2559,9 @@ elseif strcmp(action,'settings')
     textleft = textwindl + nudge;
     textw = frw - typewindw;
     textwind = [textwindl, dirffrb,textw, rbfrh];
-    typeframe = uicontrol('style','frame','pos',typewind,'visible','off');
+    [~] = uicontrol('style','frame','pos',typewind,'visible','off');
     
-    textframe = uicontrol('style','frame','pos',textwind,'visible','off');
+    [~] = uicontrol('style','frame','pos',textwind,'visible','off');
     
     switch fieldtype
         case 'arrows'
@@ -2600,7 +2611,7 @@ elseif strcmp(action,'settings')
     set(data.rad,'Callback',callrad);
     
     nfptsstr = {'Number of field points'; 'per row or column.'};
-    nfptstext = uicontrol('style','text',...
+    [~] = uicontrol('style','text',...
         'pos',[textleft rb2b textw-2*nudge 1.5*ht],...
         'string',nfptsstr,...
         'horizon','center',...
@@ -2626,7 +2637,7 @@ elseif strcmp(action,'settings')
         'data.npts = kk;',...
         'set(gcf,''user'',data)'];
     
-    npts = uicontrol('style','edit',...
+    [~] = uicontrol('style','edit',...
         'pos',[textleft+(textw -30*ht/19)/2,rb1b 30*ht/19,ht],...
         'string',npts,...
         'Callback',callnfpts,...
@@ -2705,9 +2716,9 @@ elseif strcmp(action,'delete')
     pv = get(dud.plineh,'vis');
     handles = [arr.lines;arr.arrows;dud.plineh];
     set(handles,'vis','off');
-    oldcall = get(disph,'WindowButtonDownFcn');
+    %oldcall = get(disph,'WindowButtonDownFcn');
     set(disph,'WindowButtonDownFcn','');
-    trjh = [dud.solhand;dud.plhand;dud.contours];
+    %trjh = [dud.solhand;dud.plhand;dud.contours];
     notice = dud.notice;
     if isvalid(notice)
         nstr = get(notice,'string');
@@ -2832,8 +2843,8 @@ elseif strcmp (action,'zoomback')
 elseif strcmp(action,'level')
     
     dfdisp = gcf;
-    dfset = findobj('name','matdfield Setup');
-    sud = get(dfset,'user');
+    %dfset = findobj('name','matdfield Setup');
+    %sud = get(dfset,'user');
     dud = get(dfdisp,'user');
     lfcn = dud.level;
     tname = dud.syst.tname;
@@ -2851,7 +2862,7 @@ elseif strcmp(action,'level')
         'NumberTitle','off','tag','matdfield');
     
     matdfield('figdefault',dflevel);
-    hhsetup = get(0,'showhiddenhandles');
+    %hhsetup = get(0,'showhiddenhandles');
     set(dflevel,'menubar','figure');
     
     lev.fr1 = uicontrol('style','frame');
@@ -2917,7 +2928,7 @@ elseif strcmp(action,'level')
     
     set(lev.ch,'Callback',callrad);
     
-    left = 2; varl = 400; buttw = 60;
+    left = 2; varl = 400; %buttw = 60;
     nudge = 3;
     tab = 15;
     lines1 = 5;
@@ -3002,8 +3013,8 @@ elseif strcmp(action,'levcomp')
     end
     pnameh = sud.h.pname;
     pvalh = sud.h.pval;
-    pflag = zeros(1,4);
-    perr = [];
+    %pflag = zeros(1,4);
+    %perr = [];
     %lfcn(find(abs(lfcn)==32))=[];
     lfcn = strrep(lfcn,' ','');
     for kk = 1:4
@@ -3013,7 +3024,7 @@ elseif strcmp(action,'levcomp')
             %pn(find(abs(pn)==92))=[];
             pn = strrep(pn,'\','');
             if isempty(pv)
-                perr = pvalh(kk);
+                %perr = pvalh(kk);
             else
                 %pv(find(abs(pv)==32))=[];
                 pv = strrep(pv,' ','');
@@ -3028,19 +3039,38 @@ elseif strcmp(action,'levcomp')
     end
     
     WINvect = dud.syst.wind;
-    XxXxXx = WINvect(1) + rand*(WINvect(2)-WINvect(1));
-    YyYyYy = WINvect(3) + rand*(WINvect(4)-WINvect(3));
+    TtTtTt = WINvect(1) + rand*(WINvect(2)-WINvect(1));
+    XxXxXx = WINvect(3) + rand*(WINvect(4)-WINvect(3));
     tname = dud.syst.tname;
     xname = dud.syst.xname;
     %tname(find(abs(tname)==92))=[];  % Remove \s if any.
     %xname(find(abs(xname)==92))=[];
     tname = strrep(tname,'\','');
     xname = strrep(xname,'\','');
-    err = 0;res = 1;
-    eval([tname,'=XxXxXx;'],'err = 1;');
-    eval([xname,'=YyYyYy;'],'err = 1;');
-    eval(['res = ',lfcn, ';'],'err = 1;');
-    if err || isempty(res)
+    
+    
+    if ~isvarname(tname)
+        errmsg = [tname ' is not a valid variable name in MATLAB'];
+        fprintf('\a')
+        errordlg(errmsg,'MATPPLANE error','on');
+        return;
+    end
+   
+    if ~isvarname(xname)
+        errmsg = [xname ' is not a valid variable name in MATLAB'];
+        fprintf('\a')
+        errordlg(errmsg,'MATPPLANE error','on');
+        return;
+    end    
+    
+%     err = 0;res = 1;
+%     eval([tname,'=XxXxXx;'],'err = 1;');
+%     eval([xname,'=YyYyYy;'],'err = 2;');
+%     eval(['res = ',lfcn, ';'],'err = 3;');
+    lfcn=str2func(['@(' tname ',' xname ')' lfcn]);
+    try
+        lfcn(TtTtTt,XxXxXx);
+    catch
         errmsg = 'The function does not evaluate correctly.';
         fprintf('\a')
         errordlg(errmsg,'matdfield error','on');
@@ -3058,11 +3088,13 @@ elseif strcmp(action,'levcomp')
     YYYg=Ymin + deltay*(-k:N+k);
     
     [Xx,Yy]=meshgrid(XXXg,YYYg);
-    Xxx=Xx(:);Yyy=Yy(:);
-    Ww = zeros(size(Xxx));
-    eval([tname,'=Xxx;'],'err = 1;');
-    eval([xname,'=Yyy;'],'err = 1;');
-    eval(['Ww = ',lfcn, ';']);
+    Xxx=Xx(:);
+    Yyy=Yy(:);
+%     Ww = zeros(size(Xxx));
+%     eval([tname,'=Xxx;'],'err = 1;');
+%     eval([xname,'=Yyy;'],'err = 1;');
+%     eval(['Ww = ',lfcn, ';']);
+    Ww = lfcn(Xxx,Yyy);
     
     KKK = 3; %# of significant figures.
     
@@ -3075,10 +3107,11 @@ elseif strcmp(action,'levcomp')
             figure(dfdisp);
             [XX,YY] = ginput(1);
             figure(dflevel);
-            eval([tname,'=XX;'],'err = 1;');
-            eval([xname,'=YY;'],'err = 1;');
-            eval(['rhs = ',lfcn, ';'],'err = 1');
-            LL = ceil(log10(abs(rhs))); %#ok<NODEF> % This seems not to give error
+%             eval([tname,'=XX;'],'err = 1;');
+%             eval([xname,'=YY;'],'err = 1;');
+%             eval(['rhs = ',lfcn, ';'],'err = 1');
+            rhs =  lfcn(XX,YY);
+            LL = ceil(log10(abs(rhs))); 
             rhs = round(10^(KKK-LL)*rhs);
             rhs = 10^(LL-KKK)*rhs;
             
@@ -3111,7 +3144,7 @@ elseif strcmp(action,'levcomp')
         'rotation',0);
     set(hcont,'visible','on',...
         'color',dud.color.level,...
-        'linestyle',':');
+        'linestyle','-.');
     dud.contours = [dud.contours ;hcont;hlabel];
     set(dfdisp,'user',dud);
     
@@ -3154,7 +3187,7 @@ elseif strcmp(action,'figdefault')
     switch style
         case 'black'
             % if isunix | isvms, gamma = 0.5; else gamma = 0.0; end
-            whitebg(fig,[0,0,0])
+            %whitebg(fig,[0,0,0])
             if isunix || isvms
                 fc = [.35 .35 .35];
             else
@@ -3162,14 +3195,14 @@ elseif strcmp(action,'figdefault')
             end
             set(fig,'color',fc);
             set(fig,'defaultaxescolor',[0 0 0])
-            % whitebg(fig,brighten([.2 .2 .2],gamma))
+            % %whitebg(fig,brighten([.2 .2 .2],gamma))
             set(fig,'defaultaxescolor',[0 0 0])
             set(fig,'defaultaxescolororder', ...
                 1-[0 0 1;0 1 0;1 0 0;0 1 1;1 0 1;1 1 0;.25 .25 .25]) % ymcrgbw
             set(fig,'colormap',jet(64))
             set(fig,'defaultsurfaceedgecolor',[0 0 0]);
         case 'white'
-            whitebg(fig,[1 1 1])
+            %whitebg(fig,[1 1 1])
             set(fig,'color',[.8 .8 .8])
             set(fig,'defaultaxescolor',[1 1 1])
             set(fig,'defaultaxescolororder', ...
@@ -3178,7 +3211,7 @@ elseif strcmp(action,'figdefault')
             set(fig,'defaultsurfaceedgecolor',[0 0 0])
             
         case 'test'
-            whitebg(fig,[1 1 1])
+            %whitebg(fig,[1 1 1])
             set(fig,'color',[.8 .8 .8])
             set(fig,'defaultaxescolor',[1 1 1])
             set(fig,'defaultaxescolororder', ...
@@ -3188,7 +3221,7 @@ elseif strcmp(action,'figdefault')
             % set(fig,'defaultuicontrolbackgroundcolor',[1 1 1]);
             
         case 'display'
-            whitebg(fig,[1 1 1])
+            %whitebg(fig,[1 1 1])
             set(fig,'defaultaxescolor',[1 1 1])
             set(fig,'defaultaxescolororder', ...
                 [0 0 1;0 .5 0;1 0 0;0 .75 .75;.75 0 .75;.75 .75 0;.25 .25 .25]) % bgrymck
@@ -3198,7 +3231,7 @@ elseif strcmp(action,'figdefault')
             set(fig,'defaultuicontrolbackgroundcolor',[1 1 1]*220/255);
             
         case 'bw'
-            whitebg(fig,[0 0 0])
+            %whitebg(fig,[0 0 0])
             set(fig,'color',[0 0 0])
             set(fig,'defaultaxescolor',[0 0 0])
             set(fig,'defaultaxescolororder', ...
@@ -3229,7 +3262,7 @@ elseif strcmp(action,'paraeval')
     str = deblank(input3);
     ll = length(str);
     lp = length(para);
-    lv = length(value);
+    %lv = length(value);
     
     if strcmp(para,str)
         str = value;
@@ -3264,8 +3297,8 @@ elseif strcmp(action,'quit')
         fn = [tempdir,oldfiles(k).name];
         fid = fopen(fn,'r');
         if fid ~= -1
-            ll = fgetl(fid);
-            ll = fgetl(fid);
+            fgetl(fid);  % Skip over 1st line
+            fgetl(fid);  % Skip over 2nd line
             ll = fgetl(fid);
             fclose(fid);
             if strcmp(ll,'%% Created by matdfield')
@@ -3382,7 +3415,7 @@ elseif strcmp(action,'savesyst')
     
     switch type
         case 'system'
-            systems = get(sud.h.gallery,'user');
+            %systems = get(sud.h.gallery,'user');
             newsyst = sud.c;
             fn = newsyst.name;
             if ~isempty(fn)
@@ -3799,7 +3832,7 @@ elseif strcmp(action,'addgall')
                 sepstr = 'off';
         end
         kkk = num2str(ll+1);
-        newmenu = uimenu(sud.h.gallery,'label',sname,...
+        [~] = uimenu(sud.h.gallery,'label',sname,...
             'Callback',['matdfield(''system'',',kkk,')'],...
             'separator',sepstr);
         set(findobj('tag','savegal'),'enable','on');
@@ -3819,7 +3852,7 @@ elseif strcmp(action,'export')
     pv = get(dud.plineh,'vis');
     handles = [arr.lines;arr.arrows;dud.plineh];
     set(handles,'vis','off');
-    oldcall = get(disph,'WindowButtonDownFcn');
+    %oldcall = get(disph,'WindowButtonDownFcn');
     set(disph,'WindowButtonDownFcn','');
     trjh = dud.solhand;
     notice = dud.notice;
