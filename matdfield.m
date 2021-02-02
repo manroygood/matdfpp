@@ -73,8 +73,8 @@ if strcmp(action,'initialize')
 %    ll = length(tmpdir);
 %    tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if ~contains(path,tempdir)
 %    if ~contains(p,tmpdir)
+    if ~contains(path,tempdir)
         ud.remtd = 1;
         addpath(tempdir)
     end

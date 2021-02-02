@@ -73,7 +73,16 @@ if strcmp(action,'initialize')
 %    ll = length(tmpdir);
 %    tmpdir = tmpdir(1:ll-1);
     ud.remtd = 0;
-    if ~contains(path,tempdir)
+    % The following is a more robust way to check if the operating system's
+    % temporary directory is on the path
+    pathCell = regexp(path, pathsep, 'split');
+    if ispc  % Windows is not case-sensitive
+        onPath = any(strcmpi(tempdir, pathCell));
+    else
+        onPath = any(strcmp(tempdir, pathCell));
+    end
+    
+    if ~onPath
         ud.remtd = 1;
         addpath(tempdir)
     end
