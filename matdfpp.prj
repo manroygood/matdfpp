@@ -1,0 +1,72 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="3794950551" file="/Users/goodman/Numerics/matpplane/matdfpp.prj" location="/Users/goodman/Numerics/matpplane" name="matdfpp" target="target.mlapps" target-name="Package App">
+    <param.appname>matdfpp</param.appname>
+    <param.authnamewatermark>Roy Goodman</param.authnamewatermark>
+    <param.email />
+    <param.company />
+    <param.icon />
+    <param.icons />
+    <param.summary>Draws direction fields for scalar ODE and phase planes for autonomous systems of two ODE.</param.summary>
+    <param.description>Fixes most of the bugs in the old codes DFIELD and PPLANE written by John Polking.</param.description>
+    <param.screenshot>/private/var/folders/0p/lqhdk1m88xj8w30059_snrh80000gq/T/tp0c6e3786_2f24_44f8_8aa6_cedbf403b0fc.png</param.screenshot>
+    <param.version>0.92</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.output>${PROJECT_ROOT}</param.output>
+    <param.guid>a287c427-1027-4fae-b40e-3710a27fe796</param.guid>
+    <unset>
+      <param.email />
+      <param.company />
+      <param.icon />
+      <param.icons />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}/matdfpp.mlapp</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}/dfield.png</file>
+      <file>${PROJECT_ROOT}/matdfdp45.m</file>
+      <file>${PROJECT_ROOT}/matdfeul.m</file>
+      <file>${PROJECT_ROOT}/matdfield.m</file>
+      <file>${PROJECT_ROOT}/matdfrk2.m</file>
+      <file>${PROJECT_ROOT}/matdfrk4.m</file>
+      <file>${PROJECT_ROOT}/matppdp45.m</file>
+      <file>${PROJECT_ROOT}/matpplane.m</file>
+      <file>${PROJECT_ROOT}/matppout.m</file>
+      <file>${PROJECT_ROOT}/matpprk4.m</file>
+      <file>${PROJECT_ROOT}/pplane.png</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="/Users/goodman/Numerics" name="matpplane" optional="false">/Users/goodman/Numerics/matpplane</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB_R2020b.app</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.16</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
