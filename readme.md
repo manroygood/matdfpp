@@ -14,7 +14,7 @@ There are lots of nice features:
 * finding equilibria and linearizing about them.
 * finding stable & unstable manifolds
 
-These programs were originally copyrighted by John Polking between 1995 and 2003. The textbook Ordinary Differential Equations Using MATLAB 3rd edition contains a manual for the programs, but they are pretty self-explanatory.
+These programs were originally copyrighted by John Polking between 1995 and 2003. The textbook _Ordinary Differential Equations Using MATLAB_, 3rd edition, contains a manual for the programs, but they are pretty self-explanatory.
 
 The codes were last compatible with MATLAB 6.5 which was released in 2003. On the MATLAB File Exchange, you can find many submissions that get them running again, but none that attempted to fix all the broken components. 
 
